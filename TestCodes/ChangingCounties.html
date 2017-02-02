@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>D3.js US Map with Zoom to State and Click on County</title>
+<style>
+   .background {
+        fill: none;
+        pointer-events: all;
+    }
+
+    #states {
+        fill: black;
+    }
+
+    #states .active{
+        display: none;
+    }
+
+    #state-borders {
+        fill: none;
+        stroke: #aaa;
+        stroke-width: 1.5px;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+        pointer-events: none;
+    }
+
+    .county-boundary {
+        fill: white;
+        stroke: gray;
+        stroke-width: .5px;
+    }
+
+    /*.county-boundary:hover,*/
+    .state:hover {
+        fill: #DCCE70;
+    }
+
+    div.tooltip {
+        position: absolute;
+        text-align: left;
+        padding: 5px;
+        font: 12px sans-serif;
+        color: white;
+        background: black;
+        border: 1px;
+        border-radius: 4px;
+        pointer-events: none;
+    }
+
+
+    body { font: 12px Arial;}
+
+    path {
+        stroke: steelblue;
+        stroke-width: 2;
+        fill: none;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: grey;
+        stroke-width: 1;
+        shape-rendering: crispEdges;
+    }
+
+    .switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {display:none;}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+    div.tooltip {
+        position: absolute;
+        text-align: left;
+        padding: 5px;
+        font: 12px sans-serif;
+        color: white;
+        background: black;
+        border: 1px;
+        border-radius: 4px;
+        pointer-events: none;
+    }
+
+</style>
+<body>
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="https://d3js.org/topojson.v1.min.js"></script>
+<script src="https://d3js.org/d3.geo.tile.v0.min.js"></script>
+<label class="switch">
+<input type="checkbox" onclick="toggle(this)">
+  <div class="slider round"></div>
+</label>
+<script>
+
+
+    var test;
+    var button = 0;
+    var width = 960,
+            height = 500,
+            centered;
+
+    var projection = d3.geo.albersUsa()
+            .scale(1070)
+            .translate([width / 2, height / 2]);
+
+    var path = d3.geo.path()
+            .projection(projection);
+
+    var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+    svg.append("rect")
+            .attr("class", "background")
+            .attr("width", width)
+            .attr("height", height)
+            .on("click", clicked);
+
+    var g = svg.append("g");
+
+    var div = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+    data2012 = {};
+    data2008 = {};
+    data2004 = {};
+    umemp2004 ={};
+    unemp2008 ={};
+    unemp2012 ={};
+    dataCounty = {};
+    counter ={};
+    changingCounty ={};
+    var counterDem;
+    var counterRep;
+    var counterOthers;
+    dataAll = {};
+    data ={};
+    var unemploymentValue =0;
+    var literacyValue =0;
+    var litCompareValue ;
+    var unempCompareValue;
+    var yearSelected;
+    var value;
+
+
+
+
+
+
+    d3.csv("../Data/CountUmp2012.csv", function(error, data) {
+        if (error) { throw error;}
+        data.forEach(function(d){
+            if(data2012[d.fips]==undefined)
+                data2012[d.fips] = [];
+
+            if(counter[d.fips]==undefined)
+                counter[d.fips] = { "rep": 0,
+                                        "dem": 0,
+                                        "oth": 0,
+                                        "count": 0};
+
+
+            data2012[d.fips] = { "name": d.county,
+                                "state": d.State,
+                                "fips": d.fips,
+                                "state_fips" : d.State_fips,
+                                "party" : d.party,
+                                "total" : d.total,
+                                "unemp": d.unemployment };
+             try{                   
+
+            if(data2012[d.fips].party === "Republican"){
+                counter[d.fips].rep = counter[d.fips].rep + 1;
+             } 
+             else 
+             if(data2012[d.fips].party === "Democrat"){
+                counter[d.fips].dem = counter[d.fips].dem +1;
+             } 
+             else 
+             if(data2012[d.fips].party === "Others"){
+                counter[d.fips].oth = counter[d.fips].oth +1;
+             }  
+
+             }
+             catch(error){ return; }                
+                  
+                                   
+
+        });
+       
+    });
+
+    d3.csv("../Data/CountUmp2008.csv", function(error, data) {
+        if (error) throw error;
+        data.forEach(function(d){
+            if(data2008[d.fips]==undefined)
+                data2008[d.fips] = [];
+
+            data2008[d.fips] = { "name": d.county,
+                                "state": d.State,
+                                "fips": d.fips,
+                                "state_fips" : d.State_fips,
+                                "party" : d.party,
+                                "total" : d.total,
+                                "unemp": d.unemployment };
+
+            try{
+            if(data2008[d.fips].party === "Republican"){
+                counter[d.fips].rep = counter[d.fips].rep +1;
+             } 
+             else 
+             if(data2008[d.fips].party === "Democrat"){
+                counter[d.fips].dem = counter[d.fips].dem +1;
+             } 
+             else 
+             if(data2008[d.fips].party === "Others"){
+                counter[d.fips].oth = counter[d.fips].oth +1;
+             } 
+            } catch(error){ return; }                  
+                  
+                                   
+
+        }); 
+        
+    });
+
+
+    d3.csv("../Data/CountUmp2004.csv", function(error, data) {
+        
+     
+        if (error) throw error;
+        data.forEach(function(d){
+            counterDem =0;
+            counterRep = 0;
+            counterOthers = 0;
+            var counterLocal =0;
+       
+            if(data2004[d.fips]==undefined)
+                data2004[d.fips] = [];
+            //console.log(d.fips);
+
+            data2004[d.fips] = {"name": d.county,
+                                "state": d.State,
+                                "fips": d.fips,
+                                "state_fips" : d.State_fips,
+                                "party" : d.party,
+                                "total" : d.total,
+                                "unemp": d.unemployment };
+
+             try{                   
+             if(data2004[d.fips].party === "Republican"){
+                counter[d.fips].rep = counter[d.fips].rep +1;
+             } 
+             else 
+             if(data2004[d.fips].party === "Democrat"){
+                counter[d.fips].dem = counter[d.fips].dem +1;
+             } 
+             else 
+             if(data2004[d.fips].party === "Others"){
+                counter[d.fips].oth = counter[d.fips].oth +1;
+             } 
+            } catch(error){ return; }                  
+                  
+                  
+        
+        
+            dataAll = data;
+
+                try{
+                if(data2004[d.fips].party === "Democrat" && data2008[d.fips].party === "Democrat" && data2012[d.fips].party === "Democrat"){
+                    counterDem = counterDem +1;
+                }
+                else if (data2004[d.fips].party === "Republican" &&  data2008[d.fips].party === "Republican" && data2012[d.fips].party === "Republican") {
+                    counterRep = counterRep + 1;
+                }
+                else {
+                    counterOthers = counterOthers +1;
+                }
+
+                if ( counterRep > counterDem && counterRep >counterOthers)
+                {
+                    value = "rep"
+                }
+                else if(counterOthers > counterDem && counterOthers > counterRep){
+                    value ="oth"
+                }
+                else if(counterDem > counterOthers && counterDem > counterRep){
+                    value = "dem"
+                }
+                }
+                catch(error){
+                    return;
+                }
+                dataCounty[d.fips]= { "name": d.county,
+                                  "state": d.State,
+                                  "fips":d.fips,
+                                  "state_fips":d.State_fips,
+                                  "value": value,
+                                  "FParty": data2004[d.fips].party,
+                                  "EParty" : data2008[d.fips].party,
+                                  "TParty" : data2012[d.fips].party,
+                                  "Funemp" : data2004[d.fips].unemp,
+                                  "Eunemp" : data2008[d.fips].unemp,
+                                  "Tunemp" : data2012[d.fips].unemp };
+
+                                    
+                    
+                                      
+
+                 if (value != "dem" && value != "rep"){
+
+                        changingCounty[d.fips]= { "name": d.County,
+                                      "state": d.State,
+                                      "fips":d.fips,
+                                      "state_fips":d.State_fips,
+                                      "value": value,
+                                      "FParty": data2004[d.fips].party,
+                                      "EParty" : data2008[d.fips].party,
+                                      "TParty" : data2012[d.fips].party,
+                                      "Funemp" : data2004[d.fips].unemp,
+                                      "Eunemp" : data2008[d.fips].unemp,
+                                      "Tunemp" : data2012[d.fips].unemp };
+                    } 
+                
+                     // if(changingCounty[d.id].FParty != changingCounty[d.id].EParty){
+                     //    counter[d.id].count = counter[d.id].count + 1;
+                     //    console.log(counter[d.id].count)
+                     // } else if(error){
+                     //    return;
+                     // }
+
+                     // if(changingCounty[d.id].EParty != changingCounty[d.id].TParty){
+                     //    counter[d.id].count = counter[d.id].count + 1;
+                     //    console.log(counter[d.id].count)
+                     // } else if(error){
+                     //    return;
+                     // }
+
+                
+                                     
+
+                                  
+      });
+       
+   
+    });
+
+
+    stateCodes = {};
+
+    d3.csv("../Data/state-data.csv", function(error, data) {
+        if (error) throw error;
+        data.forEach(function(d){
+            if(stateCodes[d.ID]==undefined)
+                stateCodes[d.ID] = [];
+            stateCodes[d.ID] = { "id": d.ID,
+                                "code": d.Code,
+                                "name": d.Name };
+        });
+
+
+
+
+    });
+
+
+    d3.json("../Data/us.json", function (error, us) {
+
+        test = us;
+
+        g.append("g")
+                .attr("id", "counties")
+                .selectAll("path")
+                .data(topojson.feature(us, us.objects.counties).features)
+                .enter().append("path")
+                .attr("d", path)
+                .attr("class", "county-boundary")
+                .style("fill", function(d,i){
+                    try{
+                        //console.log(d.id);
+                        var ex = d.id;
+                        if(dataCounty[ex].value === "rep") {
+                            return "red";
+                        }
+                        else if (dataCounty[ex].value === "dem")
+                            {return "blue";}
+                        else return "white" ;
+
+                    }catch (error)
+                    {
+                        return;
+                    }
+
+                })
+                
+                
+                .on("mouseover", function(d) {
+                    var toolText;
+                    
+                    if(dataCounty[d.id]) {
+                        try {
+                            dataCounty[d.id].name = dataCounty[d.id].name.split("").join("").replace(" County", "");
+                            if (this.style.fill != "white") {
+                                div.transition()
+                                    .duration(200)
+                                    .style("opacity", 1);
+                                div.html("<span><u><b>" + dataCounty[d.id].name + " County</b></u> "+ "<br>" +
+                                    "2004: " + dataCounty[d.id].FParty + "<br>" +
+                                    "2008: " + dataCounty[d.id].EParty+ "<br><br>" +
+                                    "2012: " + dataCounty[d.id].TParty + "<br>" +
+                                    "<i>Click for more details<br>" + toolText + "</i>" + "</span>")
+                                    .style("left", (d3.event.pageX + 28) + "px")
+                                    .style("top", (d3.event.pageY - 28) + "px");
+                            }
+                        }catch (error){
+                            return;
+                        }
+                    }
+                })
+                .on("mouseout", function(d) {
+                    div.transition()
+                        .style("opacity", 0);
+                })
+                .on("click", countyclicked);
+
+        g.append("g")
+                .attr("id", "states")
+                .selectAll("path")
+                .data(topojson.feature(us, us.objects.states).features)
+                .enter().append("path")
+                .attr("d", path)
+                .attr("class", "state")
+                .on("click", clicked);
+
+
+        g.append("path")
+                .datum(topojson.mesh(us, us.objects.states, function (a, b) {
+                    return a !== b;
+                }))
+                .attr("id", "state-borders")
+                .attr("d", path);
+
+    });
+
+
+
+    function clicked(d) {
+        var x, y, k;
+
+        if (d && centered !== d) {
+            var centroid = path.centroid(d);
+            x = centroid[0];
+            y = centroid[1];
+            k = 4;
+            centered = d;
+        } else {
+            x = width / 2;
+            y = height / 2;
+            k = 1;
+            centered = null;
+        }
+
+        g.selectAll("path")
+                .classed("active", centered && function (d) {
+                            return d === centered;
+                        });
+
+        g.transition()
+                .duration(750)
+                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+                .style("stroke-width", 1.5 / k + "px");
+    }
+
+    function countyclicked(d) {
+
+        alert(d.id);
+    }
+
+
+    function toggle(t){
+
+               
+        d3.json("../Data/us.json", function (error, us) {
+
+        test = us;
+
+        if (button === 0){
+        g.append("g")
+                .attr("id", "counties")
+                .selectAll("path")
+                .data(topojson.feature(us, us.objects.counties).features)
+                .enter().append("path")
+                .attr("d", path)
+                .attr("class", "county-boundary")
+                .style("fill", function(d,i){
+                                       try{
+                        //console.log(d.id);
+                        var ex = d.id;
+                        if(dataCounty[ex].value === "rep") {
+                            return "#aaa";
+                        }
+                        else if (dataCounty[ex].value === "dem")
+                            {return "#aaa";}
+                        else return "green" ;
+
+                    }catch (error)
+                    {
+                        return;
+                    }
+                })
+                
+                
+                 .on("mouseover", function(d) {
+                    var toolText;
+                    
+                    if(dataCounty[d.id]) {
+                        try {
+                            dataCounty[d.id].name = dataCounty[d.id].name.split("").join("").replace(" County", "");
+                            if (this.style.fill != "white") {
+                                div.transition()
+                                    .duration(200)
+                                    .style("opacity", 1);
+                                div.html("<span><u><b>" + dataCounty[d.id].name + " County</b></u> "+ "<br>" +
+                                    "2004: " + dataCounty[d.id].FParty + "<br>" +
+                                    "2008: " + dataCounty[d.id].EParty+ "<br><br>" +
+                                    "2012: " + dataCounty[d.id].TParty + "<br>" +
+                                    "<i>Click for more details<br>" + toolText + "</i>" + "</span>")
+                                    .style("left", (d3.event.pageX + 28) + "px")
+                                    .style("top", (d3.event.pageY - 28) + "px");
+                            }
+                        }catch (error){
+                            return;
+                        }
+                    }
+                })
+                .on("mouseout", function(d) {
+                    div.transition()
+                        .style("opacity", 0);
+                })
+                .on("click", countyclicked);
+                button = 1;
+        }
+        
+            
+        
+
+        else if(button === 1){
+            g.append("g")
+                .attr("id", "counties")
+                .selectAll("path")
+                .data(topojson.feature(us, us.objects.counties).features)
+                .enter().append("path")
+                .attr("d", path)
+                .attr("class", "county-boundary")
+                .style("fill", function(d,i){
+                    try{
+                        //console.log(d.id);
+                        var ex = d.id;
+                        if(dataCounty[ex].value === "rep") {
+                            return "red";
+                        }
+                        else if (dataCounty[ex].value === "dem")
+                            {return "blue";}
+                        else return "white" ;
+
+                    }catch (error)
+                    {
+                        return;
+                    }
+
+                })
+                
+                
+                 .on("mouseover", function(d) {
+                    var toolText;
+                    
+                    if(dataCounty[d.id]) {
+                        try {
+                            dataCounty[d.id].name = dataCounty[d.id].name.split("").join("").replace(" County", "");
+                            if (this.style.fill != "white") {
+                                div.transition()
+                                    .duration(200)
+                                    .style("opacity", 1);
+                                div.html("<span><u><b>" + dataCounty[d.id].name + " County</b></u> "+ "<br>" +
+                                    "2004: " + dataCounty[d.id].FParty + "<br>" +
+                                    "2008: " + dataCounty[d.id].EParty+ "<br><br>" +
+                                    "2012: " + dataCounty[d.id].TParty + "<br>" +
+                                    "<i>Click for more details<br>" + toolText + "</i>" + "</span>")
+                                    .style("left", (d3.event.pageX + 28) + "px")
+                                    .style("top", (d3.event.pageY - 28) + "px");
+                            }
+                        }catch (error){
+                            return;
+                        }
+                    }
+                })
+                .on("mouseout", function(d) {
+                    div.transition()
+                        .style("opacity", 0);
+                })
+                .on("click", countyclicked);
+
+                button =0;
+        }
+
+        
+        });
+        
+        
+
+    }
+
+
+    function unemp(a,x,y){
+       // console.log(a);
+     //  console.log(x);
+        unemploymentValue = a;
+        unempCompareValue = y;
+        yearSelected = x;
+    }
+
+function literacy(a,x){
+        //console.log(a);
+        //console.log(x);
+        literacyValue = a;
+        litCompareValue =x;
+        compare(literacyValue,litCompareValue);
+    }
+
+ function compare(years){
+   //console.log("here"+litCompareValue)
+   //console.log(litValue)
+   //console.log(unemploymentValue)
+   console.log(years)
+    g.selectAll(".county-boundary")
+        .style("fill",function(d){
+            
+             try{
+             if(years === "2008"){
+                console.log(d.id)
+              
+                    if(changingCounty[d.id].FParty === changingCounty[d.id].EParty){
+                        return "#aaa"; }
+                    else if(changingCounty[d.id].EParty === "Republican")
+                            {   return "yellow";}
+                      
+                        else(changingCounty[d.id].EParty==="Democrat")
+                           { return "orange";}
+              }          
+                
+            
+            
+            if(years === "2012"){
+                console.log(d.id)
+                    if(changingCounty[d.id].TParty === changingCounty[d.id].EParty){
+                    return "#aaa";
+                    }
+                else{
+                    if(changingCounty[d.id].TParty === "Republican"){
+                        return "yellow";
+                    }
+                    else(changingCounty[d.id].TParty === "Democrat")
+                        {return "orange";}
+                    
+                     }
+
+            }
+        
+        }
+        catch(error){
+            return;
+        }
+            // if(unempCompareValue === 1){
+            //     try{
+            //     if(changingCounty[d.id].Funemp > unemploymentValue)
+            //     {
+            //        if(changingCounty[d.id].TParty === "Democrat"){ return "blue";}
+            //         else if(changingCounty[d.id].TParty === "Republican"){ return "red";}
+            //         else if(changingCounty[d.id].TParty === "Others"){ return "green";}
+            //     }
+            // }
+            //   catch(error) {
+            //         return "aaa";
+            //     }
+                
+            // }
+            // else if(unempCompareValue === 0){
+            //     try{
+            //     if(changingCounty[d.id].Tunemp < unemploymentValue)
+            //     {
+            //        if(changingCounty[d.id].TParty === "Democrat"){ return "blue";}
+            //         else if(changingCounty[d.id].TParty === "Republican"){ return "red";}
+            //         else if(changingCounty[d.id].TParty === "Others"){ return "green";}
+            //     }
+            // }
+            //   catch(error) {
+            //         return "aaa";
+            //     }
+            // }
+            //return "green";
+        })
+
+
+    
+
+ }   
+  g.selectAll(".state")
+                .on("mouseover", function(d) {
+                    this.style.opacity = .8;
+                    div.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    div.html(stateCodes[d.id].name)
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    g.selectAll(".state")
+                        .style("opacity", 0)
+                    div.transition()
+                        .style("opacity", 0);
+                })
+                .on("click", clicked);
+    
+</script>
+<br>
+
+
+<select name="years" id ="years">
+    <option value="2008">2008</option>
+    <option value="2012">2012</option>
+  </select>
+<!-- Unemployment Rate (%): <input name="Pump" id="unemp" type="text" />
+<input name="unempPump" onclick="unemp(document.getElementById('unemp').value,document.getElementById('years').value,1)" type="button" value="Greater than" />
+<input name="unempDrop" onclick="unemp(document.getElementById('unemp').value,document.getElementById('years').value,0)" type="button" value="Less than" /><br> -->
+<!-- 
+Literacy Rate (%): <input name="Pump" id="lit" type="text" />
+<input name="litPump" onclick="literacy(document.getElementById('lit').value,1)" type="button" value="Greater than" />
+<input name="litDrop" onclick="literacy(document.getElementById('lit').value,0)" type="button" value="Less than" /><br> -->
+<input name="compare" onclick="compare(document.getElementById('years').value)" type="button" value="compare" /><br>
+
+<button onclick="reset()">Reset</button><br>
+</body>
+
+

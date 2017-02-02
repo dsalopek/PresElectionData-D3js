@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>D3.js US Map with Zoom to State and Click on County</title>
+<style>
+   /*************************** Andrew **************************/
+
+    .background {
+        fill: none;
+        pointer-events: all;
+    }
+
+    #states {
+        fill: black;
+    }
+
+    #states .active{
+        display: none;
+    }
+
+    #state-borders {
+        fill: none;
+        stroke: #aaa;
+        stroke-width: 1.5px;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+        pointer-events: none;
+    }
+
+    .county-boundary {
+        fill: #aaa;
+        stroke: gray;
+        stroke-width: .5px;
+    }
+
+    /*.county-boundary:hover,*/
+    .state:hover {
+        fill: #DCCE70;
+    }
+
+    div.tooltip {
+        position: absolute;
+        text-align: left;
+        padding: 5px;
+        font: 12px sans-serif;
+        color: white;
+        background: black;
+        border: 1px;
+        border-radius: 4px;
+        pointer-events: none;
+    }
+
+
+    body { font: 12px Arial;}
+
+    path {
+        stroke: steelblue;
+        stroke-width: 2;
+        fill: none;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: grey;
+        stroke-width: 1;
+        shape-rendering: crispEdges;
+    }
+
+    /*************************** ANdrew ********************************/
+</style>
+<body onload="changeYear(2004)">
+<div id="slider"></div>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="http://d3js.org/d3.geo.tile.v0.min.js"></script>
+<script src="../d3/async.js"></script>
+<script src="../d3/d3.sliderCSS.js"></script>
+<link rel="stylesheet" type="text/css" href="../d3/d3.slider.css" media="screen" />
+<script src="../d3/d3.sliderCSS.js"></script>
+<script>
+
+//    -------------------------------------- nAndrew
+
+    var allYear = [2004,2008,2012];
+
+    var width = 960,
+            height = 500,
+            centered;
+
+    var projection = d3.geo.albersUsa()
+            .scale(1070)
+            .translate([width / 2, height / 2]);
+
+    var path = d3.geo.path()
+            .projection(projection);
+
+    var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+
+
+    svg.append("rect")
+            .attr("class", "background")
+            .attr("width", width)
+            .attr("height", height)
+            .on("click", clicked);
+
+    var g = svg.append("g");
+
+    var div = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+    var dataAll = {};
+
+    var totalCount = 0;
+
+    var years = ["2004","2008","2012"];
+
+    var allChart = [];
+    var parseDate = d3.time.format("%Y").parse;
+
+//    var slider = d3.slider().min(2004).max(2012).tickValues(years).stepValues(years);
+    var formatter = d3.format("");
+    var tickFormatter = function(d) {
+        return formatter(d);
+    }
+    var slider = d3.slider().min(2004).max(2012)
+        .tickValues([2004,2008,2012])
+        .stepValues([2004,2008,2012])
+        .tickFormat(tickFormatter);
+    // Render the slider in the div
+
+    function drawChart(inCounty) {
+        d3.selectAll(".svgChart").remove();
+        var margin = {top: 30, right: 20, bottom: 30, left: 80},
+            width1 = 500 - margin.left - margin.right,
+            height1 = 500 - margin.top - margin.bottom;
+
+        var svg1 = d3.select("body").append("svg")
+            .attr("width", width1 + margin.left + margin.right)
+            .attr("height", height1 + margin.top + margin.bottom)
+            .attr("class", "svgChart")
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+
+        // Set the ranges
+        var x = d3.time.scale().range([0, width1]);
+        var y = d3.scale.linear().range([height1, 0]);
+
+        // Define the axes
+        var xAxis = d3.svg.axis().scale(x)
+            .orient("bottom").ticks(3);
+
+        var yAxis = d3.svg.axis().scale(y)
+            .orient("left").ticks(10);
+
+        // Define the line
+        var valueline = d3.svg.line()
+            .interpolate('monotone')
+            .x(function(d) {
+                return x(parseDate(d.year));
+            })
+            .y(function(d) {
+                return y(d.total);
+            });
+
+
+
+        var charData = [];
+            inCounty.forEach(function(d) {
+                if(d!=undefined)
+                    charData.push(d);
+            });
+
+            allChart.push(charData);
+            // Scale the range of the data
+
+            minY = d3.min(allChart, function(d) {
+                return d3.min(d, function(d1) { return d1.total })})
+            maxY = d3.max(allChart, function(d) {
+                return d3.max(d, function(d1) { return d1.total })})
+            minX = d3.min(allChart, function(d) { return d3.min(d, function(d1) { return parseDate(d1.year) })})
+            maxX = d3.max(allChart, function(d) { return d3.max(d, function(d1) { return parseDate(d1.year) })})
+            x.domain([minX, maxX])
+            y.domain([minY, maxY]);
+
+        svg1.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height1 + ")")
+            .call(xAxis);
+
+        // Add the Y Axis
+        svg1.append("g").transition()
+            .attr("class", "y axis")
+            .call(yAxis);
+
+            // Add the valueline path.
+            svg1.selectAll(".line")
+                .data(allChart)
+                .enter().append("path")
+                .attr("class", "line")
+                .attr("id", function(d) {
+                    return d[0].fips;
+                })
+                .attr("d", function(d){
+                    return valueline(d);
+                })
+                .on("mouseover", function(d) {
+                    d3.selectAll(".line").style("opacity", 0.1)
+                    d3.select(this).style("opacity", 1);
+                    svg1.selectAll(".winnerCircle")
+                        .style("fill-opacity", function(){
+                            try {
+                                if(this.id==d[0].fips)
+                                    return 1;
+                                else
+                                    return 0;
+                            }catch(error){
+                                return;
+                            }
+                        })
+                        .style("opacity", function() {
+                            try{
+                                if(this.id==d[0].fips)
+                                    return 1;
+                                else
+                                    return 0.1;
+                            }catch(error){
+                                return;
+                            }
+                        })
+                    div.transition()
+                        .duration(200)
+                        .style("opacity", 1);
+                    div.html(d[0].name + ", " + d[0].state)
+                        .style("left", (d3.event.pageX + 28) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");
+                    d3.selectAll(".county-boundary")
+                        .style("fill", function(d2) {
+                            if(d2.id!=d[0].fips)
+                                return "white";
+                            else {
+                                if(dataAll[d2.id][selectedYear].party=="Republican")
+                                    return "red";
+                                else
+                                    return "blue";
+                            }
+
+                        })
+                })
+                .on("mouseout", function(d) {
+                    d3.selectAll(".line").style("opacity", 1)
+                    div.transition()
+                        .style("opacity", 0);
+                    d3.selectAll(".county-boundary")
+                        .style("fill", function(d2) {
+                            try {
+                                if(dataAll[d2.id][selectedYear].party=="Republican")
+                                    return "red";
+                                else
+                                    return "blue";
+                            } catch(error) {
+                                return;
+                            }
+                        })
+                    d3.selectAll(".winnerCircle")
+                        .style("fill-opacity", 1)
+                        .style("opacity", 1)
+                })
+
+            allChart.forEach(function(d) {
+                d.forEach(function(d1){
+                    svg1.append("circle")
+                        .attr("stroke", "#000")
+                        .attr("class", "winnerCircle")
+                        .attr("fill", function() {
+                            if(d1.party=="Republican")
+                                return "red";
+                            else
+                                return "blue";
+                        })
+                        .attr("cx", x(parseDate(d1.year)))
+                        .attr("cy", y(d1.total))
+                        .attr("r", Math.pow(10, .8))
+                        .attr("id", d1.fips)
+                        .on("mouseover", function() {
+                            d3.selectAll(".winnerCircle")
+                                .style("fill-opacity", function(){
+                                    //look at line when hovering over
+                                    if(d1.fips==this.id)
+                                        return 1;
+                                    else
+                                        return .1;
+                                })
+                                .style("opacity", function(){
+                                    if(this.id==d1.fips)
+                                        return 1;
+                                    else
+                                        return .1;
+                                })
+                            d3.select(this)
+                                .style("fill-opacity", 1)
+                                .style("opacity", 1)
+                            div.transition()
+                                .duration(200)
+                                .style("opacity", 1);
+                            div.html(d[0].name + ", " + d[0].state)
+                                .style("left", (d3.event.pageX + 28) + "px")
+                                .style("top", (d3.event.pageY - 28) + "px");
+                            d3.selectAll(".county-boundary")
+                                .style("fill", function(d2) {
+                                    if(d2.id!=d[0].fips)
+                                        return "white";
+                                    else {
+                                        if(d1.party=="Republican")
+                                            return "red";
+                                        else
+                                            return "blue";
+                                    }
+
+                                })
+                            d3.selectAll(".line")
+                                .style("opacity", function(d2) {
+                                    try{
+                                        if(d2[0].fips==d1.fips)
+                                            return 1;
+                                        else
+                                            return .1;
+                                    }catch(error){
+                                        return;
+                                    }
+
+                                })
+                        })
+                        .on("mouseout", function() {
+                            d3.selectAll("circle")
+                                .style("fill-opacity", 1)
+                                .style("opacity", 1)
+                            d3.selectAll(".line")
+                                .style("opacity", 1)
+                            div.transition()
+                                .style("opacity", 0);
+                            d3.selectAll(".county-boundary")
+                                .style("fill", function(d2) {
+                                    try {
+                                        if(dataAll[d2.id][selectedYear].party=="Republican")
+                                            return "red";
+                                        else
+                                            return "blue";
+                                    }catch (error){
+                                        return;
+                                    }
+
+                                })
+                        })
+                })
+            })
+
+//            svg.append("text")
+//                .attr("transform", "rotate(-90)")
+//                .attr("y", 0-margin.left+10)
+//                .attr("x", 0-(height/2))
+//                .attr("dy", "1em")
+//                .style("text-anchor", "middle")
+//                .text("Word Frequency");
+//
+//            svg.append("text")
+//                .attr("x", (width/2)-20)
+//                .attr("y", height+15)
+//                .style("text-anchor", "middle")
+//                .text("Time");
+//
+//            svg.append("text")
+//                .attr("x", (width/2)-20)
+//                .attr("y", 0-15)
+//                .attr("text-anchor", "middle")
+//                .attr("font-size", "20px")
+//                .attr("text-decoration", "underline")
+//                .text("Stream of Word Frequency");
+
+            // Add the X Axis
+//            svg1.append("g")
+//                .attr("class", "x axis")
+//                .attr("transform", "translate(0," + height1 + ")")
+//                .call(xAxis);
+//
+//            // Add the Y Axis
+//            svg1.append("g")
+//                .attr("class", "y axis")
+//                .call(yAxis);
+    }
+
+
+
+
+    d3.csv("../Data/county.csv", function(error, data) {
+        if (error) throw error;
+        totalCount = 0;
+        data.forEach(function(d){
+            if(dataAll[d.FIPS]==undefined)
+                dataAll[d.FIPS] = [];
+
+            dataAll[d.FIPS][d.Year] = { "name": d.County,
+                                "state": d.State,
+                                "fips": d.FIPS,
+                                "state_fips" : d.State_FIPS,
+                                "dvote" : d.Dvote,
+                                "dpercent" : +d.Dpercent,
+                                "rvote" : d.Rvote,
+                                "rpercent" : +d.Rpercent,
+                                "ovote" : d.Ovote,
+                                "opercent" : +d.Opercent,
+                                "winner" : d.Winner,
+                                "party" : d.Party,
+                                "difference" : +d.Difference,
+                                "total" : +d.Total,
+                                "year" : d.Year};
+            totalCount += dataAll[d.FIPS].total;
+        });
+    });
+
+    selectedYear = 2004;
+
+    stateCodes = {};
+
+
+    d3.csv("../Data/state-data.csv", function(error, data) {
+        if (error) throw error;
+        data.forEach(function(d){
+            if(stateCodes[d.ID]==undefined)
+                stateCodes[d.ID] = [];
+            stateCodes[d.ID] = { "id": d.ID,
+                                "code": d.Code,
+                                "name": d.Name };
+        });
+    });
+
+
+    d3.json("../Data/us.json", function (error, us) {
+        g.append("g")
+            .attr("id", "counties")
+            .selectAll("path")
+            .data(topojson.feature(us, us.objects.counties).features)
+            .enter().append("path")
+            .transition()
+            .attr("d", path)
+            .attr("class", "county-boundary")
+            .style("fill", "white")
+
+        g.append("g")
+            .attr("id", "states")
+            .selectAll("path")
+            .data(topojson.feature(us, us.objects.states).features)
+            .enter().append("path")
+            .transition()
+            .attr("d", path)
+            .attr("class", "state")
+            .style("opacity", 0)
+            .style("fill", "black")
+
+
+        g.append("path")
+            .datum(topojson.mesh(us, us.objects.states, function (a, b) {
+                return a !== b;
+            }))
+            .attr("id", "state-borders")
+            .attr("d", path);
+        selectedYear=2004;
+        changeYear(selectedYear)
+    });
+
+    function changeYear(a) {
+        selectedYear = a;
+            g.selectAll(".county-boundary")
+                .style("fill", function(d,i){
+                    try{
+                        if(dataAll[d.id][selectedYear].party === "Republican") {
+                            return "red";
+                        }
+                        else
+                            return "blue";
+
+                    }catch (error)
+                    {
+                        return ;
+                    }
+                })
+                .style("opacity", function(d) {
+                    try{
+
+                        var ex = d.id;
+                        if(dataAll[ex][selectedYear].difference <= 5.0) {
+                            return 0.3;
+                        }
+                        else if(dataAll[ex][selectedYear].difference > 5.0 && dataAll[ex][selectedYear].difference <= 10.0) {
+                            return 0.4;
+                        }
+                        else if(dataAll[ex][selectedYear].difference > 10.0 && dataAll[ex][selectedYear].difference <= 15.0) {
+                            return 0.5;
+                        }
+                        else if(dataAll[ex][selectedYear].difference > 15.0 && dataAll[ex][selectedYear].difference <= 20.0) {
+                            return 0.6;
+                        }
+                        else if(dataAll[ex][selectedYear].difference > 20.0 && dataAll[ex][selectedYear].difference <= 25.0) {
+                            return 0.7;
+                        }
+                        else if(dataAll[ex][selectedYear].difference > 25.0 && dataAll[ex][selectedYear].difference <= 30.0) {
+                            return 0.8;
+                        }
+                        else if(dataAll[ex][selectedYear].difference > 30.0 && dataAll[ex][selectedYear].difference <= 35.0) {
+                            return 0.9;
+                        }
+                        else if(dataAll[ex][selectedYear].difference > 35.0 && dataAll[ex][selectedYear].difference <= 40.0) {
+                            return 1.0;
+                        }
+                        else
+                            return 1.0;
+
+                    }catch (error)
+                    {
+                        return;
+                    }
+                })
+                .on("mouseover", function(d) {
+                    var toolText;
+                    if(!document.getElementById('cbox').checked){
+                        toolText = "Press 'esc' to zoom out";
+                    }
+                    else {
+                        toolText = "";
+                    }
+                    if(dataAll[d.id]) {
+                        try {
+                            dataAll[d.id][selectedYear].name = dataAll[d.id][selectedYear].name.split("").join("").replace(" County", "");
+                            if (this.style.fill != "white") {
+                                div.transition()
+                                    .duration(200)
+                                    .style("opacity", 1);
+                                div.html("<span><u><b>" + dataAll[d.id][selectedYear].name + " County</b></u> (" + dataAll[d.id][selectedYear].winner + " +" + dataAll[d.id][selectedYear].difference + "%)<br>" +
+                                    "Democrat: " + dataAll[d.id][selectedYear].dpercent + "%<br>" +
+                                    "Year: " + dataAll[d.id][selectedYear].year + "%<br>" +
+                                    "Republican: " + dataAll[d.id][selectedYear].rpercent + "%<br><br>" +
+                                    "Democrat Votes: " + dataAll[d.id][selectedYear].dvote + "<br>" +
+                                    "Republican Votes: " + dataAll[d.id][selectedYear].rvote + "<br><br>" +
+                                    "<i>Click for more details<br>" + toolText + "</i>" + "</span>")
+                                    .style("left", (d3.event.pageX + 28) + "px")
+                                    .style("top", (d3.event.pageY - 28) + "px");
+                            }
+                        }catch (error){
+                            return;
+                        }
+                    }
+                })
+                .on("mouseout", function(d) {
+                    div.transition()
+                        .style("opacity", 0);
+                })
+//                .on("click", countyclicked);
+                .on("click", function(d) {
+                    drawChart(dataAll[d.id])
+                });
+
+            g.selectAll(".state")
+                .on("mouseover", function(d) {
+                    this.style.opacity = .8;
+                    div.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    div.html(stateCodes[d.id].name)
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    g.selectAll(".state")
+                        .style("opacity", 0)
+                    div.transition()
+                        .style("opacity", 0);
+                })
+                .on("click", clicked);
+    }
+
+
+    var clickedState;
+    function clicked(d) {
+        if(d)
+            clickedState = d.id;
+        var x, y, k;
+
+        if (d && centered !== d) {
+            var centroid = path.centroid(d);
+            x = centroid[0];
+            y = centroid[1];
+            k = 4;
+            centered = d;
+        } else {
+            x = width / 2;
+            y = height / 2;
+            k = 1;
+            centered = null;
+        }
+
+        document.getElementById('cbox').disabled=true;
+
+        g.selectAll("path")
+                .classed("active", centered && function (d) {
+                            return d === centered;
+
+                        });
+
+
+        g.transition()
+                .duration(750)
+                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+                .style("stroke-width", 1.5 / k + "px");
+    }
+
+    function countyclicked(d) {
+        clickedState=null;
+        clicked();
+    }
+
+    listData = [];
+
+    function margin(a,x){
+        document.getElementById('totalbox').value = '';
+        listData.splice(0);
+        var count = 0.0;
+        g.selectAll(".county-boundary")
+            .style("fill", function(d) {
+                if(x==1) {
+                    if (dataAll[d.id]) {
+                        try {
+                            if ((dataAll[d.id][selectedYear].state_fips == clickedState) && (dataAll[d.id][selectedYear].difference >= a)) {
+                                try {
+                                    if (dataAll[d.id][selectedYear].party === "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        count++;
+                                        return "red";
+                                    }
+                                    else {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        count++;
+                                    }
+                                    return "blue";
+
+                                } catch (error) {
+                                    return;
+                                }
+                            }
+                            else if ((clickedState == null) && (dataAll[d.id][selectedYear].difference >= a)) {
+                                try {
+                                    var ex = d.id;
+                                    if (dataAll[d.id][selectedYear].party === "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        count++;
+                                        return "red";
+                                    }
+                                    else {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        count++;
+                                    }
+                                    return "blue";
+
+                                } catch (error) {
+                                    return;
+                                }
+                            }
+                            else
+                                return "white";
+                        }
+                        catch(error){
+                            return;
+                        }
+
+                    }
+                }
+                    else {
+                        if(dataAll[d.id]){
+                            try {
+                                if((dataAll[d.id][selectedYear].state_fips == clickedState) && (dataAll[d.id][selectedYear].difference <= a)) {
+                                    try{
+                                        var ex = d.id;
+                                        if(dataAll[d.id][selectedYear].party === "Republican") {
+                                            listData.push(dataAll[d.id][selectedYear]);
+                                            count++;
+                                            return "red";
+                                        }
+                                        else {
+                                            listData.push(dataAll[d.id][selectedYear]);
+                                            count++;
+                                        }
+                                        return "blue";
+
+                                    }catch (error)
+                                    {
+                                        return;
+                                    }
+                                }
+                                else if((clickedState==null) && (dataAll[d.id][selectedYear].difference <= a)) {
+                                    try{
+                                        var ex = d.id;
+                                        if(dataAll[d.id][selectedYear].party === "Republican") {
+                                            listData.push(dataAll[d.id][selectedYear]);
+                                            count++;
+                                            return "red";
+                                        }
+                                        else {
+                                            listData.push(dataAll[d.id][selectedYear]);
+                                            count++;
+                                        }
+                                        return "blue";
+
+                                    }catch (error)
+                                    {
+                                        return;
+                                    }
+                                }
+                                else
+                                    return "white";
+                            }catch(error){
+                                return;
+                            }
+
+                        }
+                    }
+            });
+        var html = "<table border='1|1'>";
+        listData.sort(function(a, b) {
+            return parseFloat(b.difference) - parseFloat(a.difference);
+        });
+        html+="<td></td>";
+        html+="<td>Winner/Margin</td>";
+        html+="<td>State</td>";
+        html+="<td>County</td>";
+        html+="<td>Winner</td>";
+        html+="<td>Percent of total votes</td>";
+        for (var i = 0; i < listData.length; i++) {
+            html+="<tr>";
+            html+="<td>"+(i+1)+"</td>";
+            html+="<td>" + listData[i].winner + "/(+" +listData[i].difference+")</td>";
+            html+="<td>"+listData[i].state+"</td>";
+            html+="<td>"+listData[i].name+"</td>";
+            html+="<td>"+listData[i].winner+"</td>";
+            html+="<td>"+(listData[i].total/totalCount) * 100 +"</td>";
+
+            html+="</tr>";
+
+        }
+        html+="</table>";
+        document.getElementById("box").innerHTML = html;
+
+    }
+
+    var startSig = 0;
+    function reset(){
+        document.getElementById('pumpbox').value = '';
+        document.getElementById('totalbox').value = '';
+        clicked();
+        listData.splice(0);
+        clickedState = null;
+        d3.selectAll("table").remove();
+        d3.selectAll(".svgChart").remove();
+        document.getElementById('cbox').disabled=false;
+        document.getElementById('cbox').checked=false;
+
+        allChart.splice(0);
+
+        g.selectAll(".county-boundary")
+            .style("fill", function(d){
+                try{
+                    var ex = d.id;
+                    if(dataAll[d.id][selectedYear].party === "Republican") {
+                        return "red";
+                    }
+                    else
+                        return "blue";
+
+                }catch (error)
+                {
+                    return;
+                }
+            })
+    }
+
+    function total(a,x) {
+        document.getElementById('pumpbox').value = '';
+        listData.splice(0);
+        g.selectAll(".county-boundary")
+            .style("fill", function(d) {
+                if(x==1) {
+                    if(dataAll[d.id]) {
+                        try {
+                            if(dataAll[d.id][selectedYear].state_fips == clickedState && dataAll[d.id][selectedYear].total >= a) {
+                                try{
+                                    var ex = d.id;
+                                    if(dataAll[d.id][selectedYear].party == "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        return "red";
+                                    }
+                                    else
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                    return "blue";
+
+                                }catch (error)
+                                {
+                                    return;
+                                }
+                            }
+                            else if(clickedState == null && dataAll[d.id][selectedYear].total >= a)
+                                try{
+                                    var ex = d.id;
+                                    if(dataAll[d.id][selectedYear].party === "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        return "red";
+                                    }
+                                    else
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                    return "blue";
+
+                                }catch (error)
+                                {
+                                    return;
+                                }
+                            else
+                                return "white";
+                        } catch(error) {
+                            return;
+                        }
+                    }
+                }
+                else {
+                    if(dataAll[d.id]) {
+                        try {
+                            if(dataAll[d.id][selectedYear].state_fips == clickedState && dataAll[d.id][selectedYear].total <= a) {
+                                try{
+                                    var ex = d.id;
+                                    if(dataAll[d.id][selectedYear].party == "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        return "red";
+                                    }
+                                    else
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                    return "blue";
+
+                                }catch (error)
+                                {
+                                    return;
+                                }
+                            }
+                            else if(clickedState == null && dataAll[d.id][selectedYear].total <= a)
+                                try{
+                                    var ex = d.id;
+                                    if(dataAll[d.id][selectedYear].party === "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        return "red";
+                                    }
+                                    else
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                    return "blue";
+
+                                }catch (error)
+                                {
+                                    return;
+                                }
+                            else
+                                return "white";
+                        } catch (error) {
+                            return;
+                        }
+                    }
+                }
+            })
+        var html = "<table border='1|1'>";
+        listData.sort(function(a, b) {
+            return parseFloat(b.total) - parseFloat(a.total);
+        });
+        html+="<td>Total Votes</td>";
+        html+="<td>State</td>";
+        html+="<td>County</td>";
+        html+="<td>Winner</td>";
+        for (var i = 0; i < listData.length; i++) {
+            html+="<tr>";
+            html+="<td>"+numberWithCommas(listData[i].total)+"</td>";
+            html+="<td>"+listData[i].state+"</td>";
+            html+="<td>"+listData[i].name+"</td>";
+            html+="<td>"+listData[i].winner+"</td>";
+
+            html+="</tr>";
+
+        }
+        html+="</table>";
+        document.getElementById("box").innerHTML = html;
+    }
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function yearChange() {
+        selectedYear = 2008;
+        g.selectAll("path").transition();
+        reset();
+    }
+    function yearChange1() {
+        selectedYear = 2012;
+        reset();
+    }
+
+    function countyState() {
+        if(document.getElementById('cbox').checked) {
+            g.selectAll("path")
+                .classed("active", 1);
+        }
+        else {
+            g.selectAll("path")
+                .classed("active", 0);
+        }
+    }
+
+    document.onkeydown = function(evt) {
+        evt = evt || window.event;
+        if (evt.keyCode == 27 && document.getElementById('cbox').checked == false) {
+            clicked();
+            clickedState=null;
+            document.getElementById('cbox').disabled = false;
+        }
+    };
+    changeYear(2004);
+    d3.select('#slider').call(slider);
+
+
+// ------------------------------- Andrew --------------------
+
+</script>
+
+<br>
+Margin(%): <input name="Pump" id="pumpbox" type="text" />
+<input name="buttonPump" onclick="margin(document.getElementById('pumpbox').value,1)" type="button" value="Greater than" />
+<input name="buttonDrop" onclick="margin(document.getElementById('pumpbox').value,0)" type="button" value="Less than" /><br>
+
+Total Votes: <input name="Total" id="totalbox" type="text" />
+<input name="buttonTotalGreater" onclick="total(document.getElementById('totalbox').value,1)" type="button" value="Greater than" />
+<input name="buttonTotalLess" onclick="total(document.getElementById('totalbox').value,0)" type="button" value="Less than" /><br>
+<button onclick="reset()">Reset</button><br>
+<label><input type="checkbox" id="cbox" value="county_state" onchange="countyState()">Show County</label><br>
+<table id="table"></table>
+<div id="box"></div>
+
+
+
+</body>
+
+

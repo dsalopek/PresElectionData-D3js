@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+
+		<meta charset="utf-8">
+		<script type="text/javascript" src="../d3/d3.v3.min.js"> </script>
+		
+		
+			<style type="text/css">
+
+				/* On mouse hover, lighten state color */
+				path:hover {
+					fill-opacity: .7;
+				}
+				body { font: 12px Arial;}
+
+				path { 
+				    stroke: black;
+				    stroke-width: 1;
+				    fill: none;
+				}
+
+
+
+				.axis path,
+				.axis line {
+				    fill: none;
+				    stroke: grey;
+				    stroke-width: 1;
+				    shape-rendering: crispEdges;
+				}
+
+				#container1{
+					width: 1160px;
+					height: 300px;
+					float: left;
+				}
+
+				#div2{
+					width: 960px;
+					height: 400px;
+					float: left;
+				}
+
+
+				#div3{
+					width: 960px;
+					height: 70px;
+					float: left;
+				}
+
+				#div4{
+					width: 200px;
+					height: 300px;					
+					float: left;
+				}
+
+				
+
+				.overlay {
+  					fill: none;
+ 					 pointer-events: all;
+				}
+
+				.focus circle {
+				  	fill: none;
+				  	stroke: black;
+				}
+
+				.axis path,
+				.axis line, 
+				.axis1 path,
+				.axis1 line {
+				  fill: none;
+				  stroke: #E6E7E8;
+				  shape-rendering: crispEdges;
+				}
+
+				.xaxis1 path {
+				  display: none;
+				}
+
+				.brush .extent {
+				  stroke: #FFF;
+				  shape-rendering: crispEdges;
+				}
+
+				
+
+
+
+
+				
+			</style>
+	</head>
+	<body>
+		<div id="container1"> </div>
+		<div id="div2"> </div>
+		<div id="div3"></div>
+		
+
+		<script type="text/javascript">
+
+		//Setting properties for the container svg
+
+		var containerWidth = 960;
+		var containerHeight = 700;	
+		var border=1;
+		var bordercolor='black';
+
+		var natunempClick = 0;
+
+		 
+		var mapSVG = d3.select("#container1")
+							.append("svg")
+								.attr("class","mapSVG")
+								.attr("width", 300)
+								.attr("height", 200)
+								.attr("border", border);
+
+		var borderPath = mapSVG.append("rect")
+			       					.attr("x", 0)
+			       					.attr("y", 0)
+			       					.attr("height", 200)
+			       					.attr("width", 300)
+			       					.style("stroke", bordercolor)
+			       					.style("fill", "none")
+			       					.style("stroke-width", border);
+
+		var heading = d3.select("#container1")
+							.append("svg")
+								.attr("class","heading")
+								.attr("width", 860)
+								.attr("height",200);
+								
+
+
+		// var div4 = d3.select("#container1").append("div").attr("class","div4").append("text").text("hi");
+
+	
+		// Code for SVG..........................................................
+		
+			//Width and height of map
+			var width = 300;
+			var height = 200;
+			var allStatesJsonData;
+			var map;
+			var stateColor;
+			
+			// D3 Projection
+			var projection = d3.geo.albersUsa()
+							   .translate([width/2, height/2])    // translate to center of screen
+							   .scale([300]);          // scale things down so see entire US
+			        
+			// Define path generator
+			var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
+					  	 .projection(projection);  // tell path generator to use albersUsa projection
+
+					
+			// Define linear scale for output
+			var color = d3.scale.linear()
+						  .range(["rgb(213,222,217)","rgb(69,173,168)","rgb(84,36,55)","rgb(217,91,67)"]);
+
+
+			// Load GeoJSON data and merge with states data
+			d3.json("us-states.json", function(error, json) {	
+				allStatesJsonData = json;
+				// Bind the data to the SVG and create one path per GeoJSON feature
+				 map = mapSVG.selectAll("path")
+							.data(allStatesJsonData.features)
+							.enter()
+							.append("path")
+								.attr("class","map")
+								.attr("id", function(d){ return d.properties.name.split(' ').join('_');})	
+								.attr("d", path)
+								.style("stroke", "#fff")
+								.style("stroke-width", "1")
+								.style("fill", function(d) {		
+									return "rgb(213,222,217)";
+								})
+								// setting up the on click function
+								.on("click", function(){
+
+									// Get the color of the state that has been clicked on.
+									stateColor = d3.select(this).style("fill");
+									var stateId = d3.select(this).attr("id");
+
+								
+									// If a state has already been clicked, then it's color will be red. but in d3, red is represented as rgb(255,0,0).
+									// We use this, to identify whether a state has been clicked or not.
+									// Same concept can be used to select and de select an state 
+									if(stateColor.toString() != "rgb(213, 222, 217)")
+									{
+										console.log("1");
+										console.log(stateColor.toString());
+
+
+										d3.select(this)
+											.style("fill", function(d) {		
+												return "rgb(213,222,217)";
+												});
+
+										removeSelectedTimeSeries(stateId);
+
+
+									}
+									else
+									{
+										console.log("2")
+
+										// var color1 = d3.select("#" + stateId + "_legendRect").style("fill");
+										// d3.select(this)
+										// 	.style("fill", "color1");
+										
+
+										addNewTimeSeries(stateId)
+									
+
+									}
+
+									// d3.event.stopPropogation() is to stop the changes from effecting other elements within the SVG.
+									// Since the map is a part of the svg, any click on anywhere on the map will first trigger the map.onClick() and then svg.onClick() - map and
+									//svg are class names.
+									//stopPropogation() will stop the double trigger and limit it to the one you have clicked on.
+									d3.event.stopPropagation();					
+
+								})
+							.append("svg:title")
+								.text(function(d){return d.properties.name});
+
+
+				});
+
+			// To de-select all the selected states.
+			mapSVG.on("click", function(d){
+
+					var className = d3.select(this).attr("class");
+					
+
+					
+				
+
+					removeAllTimeSeries();
+
+					if (className != "map" || className != "check")
+					{
+						d3.selectAll(".map")
+							.style("fill", function(d) {		
+								return "rgb(213,222,217)";
+								})
+						d3.event.stopPropagation();
+
+					// d3.event.stopPropogation() is to stop the changes from effecting other elements within the SVG.
+								// Since the map is a part of the svg, any click on anywhere on the map will first trigger the map.onClick() and then svg.onClick() - map and
+								//svg are class names.
+								//stopPropogation() will stop the double trigger and limit it to the one you have clicked on.
+					}
+				});
+
+
+			// To add Transition to Map
+
+			mapSVG.on("mouseover", function(){
+
+
+				var width = 960;
+				var height = 300;
+				// D3 Projection
+				var projection = d3.geo.albersUsa()
+							   .translate([width/2, height/2])    // translate to center of screen
+							   .scale([700]);          // scale things down so see entire US
+			        
+				// Define path generator
+				var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
+					  	 .projection(projection);  // tell path generator to use albersUsa projection
+
+				// change svg size
+
+				mapSVG.transition()
+					.attr("width", width)
+					.attr("height", height);
+
+				mapSVG.selectAll("path")
+					.transition()
+					.attr("d", path);
+
+				
+				d3.select(".heading").style("opacity", 0);
+				
+
+			});
+
+			mapSVG.on("mouseout", function(){
+
+
+				var width = 300;
+				var height = 200;
+				// D3 Projection
+				var projection = d3.geo.albersUsa()
+							   .translate([width/2, height/2])    // translate to center of screen
+							   .scale([300]);          // scale things down so see entire US
+			        
+				// Define path generator
+				var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
+					  	 .projection(projection);  // tell path generator to use albersUsa projection
+
+				// change svg size
+
+				mapSVG.transition()
+						.attr("width", width)
+						.attr("height", height);
+
+				mapSVG.selectAll("path")
+						.transition()
+						.attr("d", path);
+				d3.select(".heading").style("opacity",1);
+				
+
+			});
+
+			var check = d3.select("#container1")
+						        .append("xhtml:body")
+						        .html("<form><input type=checkbox /> National Unemployment Rate </form>")
+						        .attr("id","check");
+
+			// var check = mapSVG.append("foreignObject")
+			// 					.attr("id","check")
+			// 					.attr("y", 180)
+			// 			        .attr("width", 200)
+			// 			        .attr("height", 50)
+						        // .append("xhtml:body")
+						        // .html("<form><input type=checkbox /></form>")
+						        // .attr("id","check");
+
+
+		    check.on("click", function(){
+
+
+		        	if(natunempClick === 0)
+		        	{
+		        		
+		        		 addNewTimeSeries("natunemp");
+		        		 natunempClick = 1;
+
+		        	}
+
+		        	else
+		        	{
+		        		
+		        		removeSelectedTimeSeries("natunemp");
+		        		natunempClick = 0;
+
+
+		        	}
+
+		            
+		        });
+
+		    // mapSVG.append("text")
+		    // 		.attr("y",193)
+		    // 		.attr("x", 25)
+		    //     	.text("National Unemployment Rate");
+
+
+
+		// Code for SVG Ends here .......................................................

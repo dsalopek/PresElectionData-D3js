@@ -1,0 +1,3358 @@
+<!DOCTYPE html>
+<html>
+<style>
+
+
+html, body { height: 100%; width: 100%; margin: 0; }
+
+body {font-family: "Lato", sans-serif;}
+ .background {
+        fill: none;
+        pointer-events: all;
+    }
+
+    #states {
+        fill: black;
+    }
+
+    #states .active{
+        display: none;
+    }
+
+    #state-borders {
+        fill: none;
+        stroke: #aaa;
+        stroke-width: 1.5px;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+        pointer-events: none;
+    }
+
+    .county-boundary {
+        fill: white;
+        stroke: gray;
+        stroke-width: .5px;
+    }
+
+    /*.county-boundary:hover,*/
+    .state:hover {
+        fill: #DCCE70;
+    }
+
+    div.tooltip {
+        position: absolute;
+        text-align: left;
+        padding: 5px;
+        font: 12px sans-serif;
+        color: white;
+        background: black;
+        border: 1px;
+        border-radius: 4px;
+        pointer-events: none;
+    }
+
+
+    body { font: 12px Arial;}
+
+    path {
+        stroke: steelblue;
+        stroke-width: 2;
+        fill: none;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: grey;
+        stroke-width: 1;
+        shape-rendering: crispEdges;
+    }
+
+
+#Poll{
+
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
+ul.tab {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    width : 1400px;
+}
+
+/* Float the list items side by side */
+ul.tab li {float: left;}
+
+/* Style the links inside the list items */
+ul.tab li a {
+    display: inline-block;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of links on hover */
+ul.tab li a:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+ul.tab li a:focus, .active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+    width:1400px;
+}
+
+/********************************* Roshan **************************/
+
+#chart{
+       width: 400px;
+       height: 400px;
+       float: right;
+   }
+
+
+   #mapRSVG{
+       width: 1400px ;
+       height: 510px;
+       float: left;
+   }
+
+
+   #mainRmap{
+       width: 900px;
+       height:500px ;
+       float: left;
+   }
+
+
+   #Rchart{
+       width: 500px;
+       height: 500px;
+       float: left;
+   }
+
+
+#bodyContainer{
+          width: 100%;
+          height: 80%;
+          float: left;
+          border: 1px solid #555555;
+        }
+
+        #leftMenu{
+          width: 20%;
+          height: 100%;         
+          float: left;
+          border: 1px solid #555555;
+        }
+
+        #svgContainer{
+          width: 79%;
+          height: 100%;         
+          float: right;
+          border: 1px solid #555555;
+        }
+
+        #mapContainer{
+          width: 65%;
+          height: 100%;         
+          float: left;
+          border: 1px solid #555555;
+        }
+
+        #forMap{
+          width: 100%;
+          height: 80%;          
+          float: left;
+          border: 1px solid #555555;
+        }
+
+        #forGraph{
+          width: 100%;
+          height: 20%;          
+          float: left;
+          border: 1px solid #555555;
+        }
+
+        #graphContainer{
+          width: 34%;
+          height: 100%;         
+          float: right;
+          border: 1px solid #555555;
+        }
+
+
+
+/*************************************/
+
+
+    .switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {display:none;}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+
+</style>
+<head>
+<script type="text/javascript" src="../d3/d3.v3.min.js"> </script>
+    <script type="text/javascript" src="../d3/async.js"> </script>
+
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="https://d3js.org/topojson.v1.min.js"></script>
+<script src="https://d3js.org/d3.geo.tile.v0.min.js"></script>
+<script src="../d3/d3.sliderCSS.js"></script>
+<link rel="stylesheet" type="text/css" href="../d3/d3.slider.css" media="screen" />
+
+
+  <script src="../Data/tooltip.js"></script>
+</head>
+<body>
+
+
+
+<ul class="tab" >
+  <li><a href="#" ><h3>Data Visualization</h3></a></li>
+  <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'HomePage')" id="defaultOpen">Main Page</a></li>
+  <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'Poll')">Poll</a></li>
+  <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'BubbleChart')">Bubble Chart</a></li>
+  <li><a href="https://roshanrshetty.github.io/Project3/TestCodes/ChangingCounties.html" class="tablinks" onclick="openCity(event, 'ChangingCounties')">Changing Counties</a></li>
+</ul>
+
+<div id="HomePage" class="tabcontent">
+  <h3>Home Page</h3>
+<div id="slider"></div>
+
+
+
+<div id="mapRSVG">
+
+    <div id="mainRmap"></div>
+    <div id="Rchart"></div>
+
+
+</div>
+
+
+<script>
+
+    //    -------------------------------------- nAndrew
+
+    var allYear = [2004, 2008, 2012];
+
+    var width = 960,
+        height = 500,
+        centered;
+
+    var projection = d3.geo.albersUsa()
+        .scale(1070)
+        .translate([width / 2, height / 2]);
+
+    var path = d3.geo.path()
+        .projection(projection);
+
+    var svg = d3.select("#mainRmap").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+
+    svg.append("rect")
+        .attr("class", "background")
+        .attr("width", width)
+        .attr("height", height)
+        .on("click", clicked);
+
+    var g = svg.append("g");
+
+    var div = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+    var dataAll = {};
+
+    var totalCount = 0;
+
+    var years = ["2004", "2008", "2012"];
+
+    var allChart = [];
+    var parseDate = d3.time.format("%Y").parse;
+
+    //    var slider = d3.slider().min(2004).max(2012).tickValues(years).stepValues(years);
+    var formatter = d3.format("");
+    var tickFormatter = function (d) {
+        return formatter(d);
+    }
+    var slider = d3.slider().min(2004).max(2012)
+        .tickValues([2004, 2008, 2012])
+        .stepValues([2004, 2008, 2012])
+        .tickFormat(tickFormatter);
+    // Render the slider in the div
+
+
+    ///////////////////////////ScatterPlot////////////////////////////////////
+
+    var allRData;
+
+    var allRData2004;
+    var allRData2008;
+    var allRData2012;
+
+    var xscale;
+    var yscale;
+
+    var tempData;
+
+    var durationValue = 500;
+
+    var counter = 0;
+
+    var allDetails2004 = new Map();
+    var allDetails2008 = new Map();
+    var allDetails2012 = new Map();
+
+    var allFIPS = new Map();
+
+    //var allyears   = new Map();
+
+    var gR;
+    var svgR;
+
+    var isGraphAlreadyDrawn = "NO";
+
+    var idAppender
+
+    var years = ["2004", "2008", "2012"];
+
+    d3.select('#chart')
+        .append("svg").attr("width", window.innerWidth).attr("height", window.innerHeight);
+
+
+    d3.csv("../Data/CountUmp2004.csv", function (error, data) {
+        if (error)
+            return;
+
+        allRData2004 = data;
+
+        allRData2004.forEach(function (d) {
+            var yuh = d["county"].split(" ").join("_");
+
+            if (allFIPS[yuh] === undefined) {
+                allFIPS[yuh] = d["fips"]
+            }
+
+            if (allDetails2004[d["fips"]] === undefined) {
+
+                allDetails2004[d["fips"]] = d
+            }
+
+        })
+
+    }) // end of d3.csv
+
+    d3.csv("../Data/CountUmp2008.csv", function (error, data) {
+        if (error)
+            return;
+
+        allRData2008 = data;
+        allRData2008.forEach(function (d) {
+            var yuh = d["county"].split(" ").join("_");
+
+            if (allFIPS[yuh] === undefined) {
+                allFIPS[yuh] = d["fips"]
+            }
+
+            if (allDetails2008[d["fips"]] === undefined) {
+
+                allDetails2008[d["fips"]] = d
+            }
+        })
+
+
+    })// end of d3.csv
+
+
+    d3.csv("../Data/CountUmp2012.csv", function (error, data) {
+        if (error)
+            return;
+
+        allRData2012 = data;
+        allRData2012.forEach(function (d) {
+            var yuh = d["county"].split(" ").join("_");
+
+            if (allFIPS[yuh] === undefined) {
+                allFIPS[yuh] = d["fips"]
+            }
+
+            if (allDetails2012[d["fips"]] === undefined) {
+
+                allDetails2012[d["fips"]] = d
+            }
+        })
+    })// end of d3.csv
+
+
+    //async.eachSeries(years,function(year,callback){
+    //
+    //    setTimeout(function(){
+    //        temp(year)
+    //        callback();
+    //
+    //    },2100)
+    //
+    //})
+
+
+    function listTemp(passedList) {
+        d3.selectAll("circle.points").attr("display", "none")
+
+        passedList.forEach(function (d) {
+            try {
+                d3.select("#xy" + d.fips).attr("display", "block")
+            } catch (error) {
+                return;
+            }
+
+        })
+//    d3.select('#chart').datum(passedList).call(ex_chart);
+    }
+
+
+    function temp(year) {
+
+        //d3.selectAll("circle").remove();
+
+        ex_chart = example().zoom(true);
+        console.log("../Data/CountUmp" + year + ".csv");
+     
+        d3.csv("../Data/CountUmp" + year + ".csv", function (error, _data) {
+
+            allRData = _data;
+
+            if (year === "2004")
+                allRData2004 = _data;
+            else if (year === "2008")
+                allRData2008 = _data;
+            else
+                allRData2012 = _data;
+
+            idAppender = year;
+
+            d3.select('#chart').datum(allRData).call(ex_chart);
+
+        })
+
+    }// enf of temp()
+
+
+    function fillMap(year) {
+
+        try {
+
+            if (year === "2004") {
+                tempData = allRData2004;
+            }
+            else if (year === "2008")
+                tempData = allRData2008;
+            else
+                tempData = allRData2012;
+
+
+            tempData.forEach(function (d) {
+
+                console.log(d["county"] + " " + year)
+                var yuh = d["county"].split(" ").join("_");
+
+                if (allDetails[yuh][year] === undefined) {
+                    allyears[year] = d;
+                    allDetails[yuh] = allyears
+                }
+
+
+            })
+
+            // tempData.foEach(function(d){
+
+            // if(allDetails[d["County"].split(" ").join("_")][year] === undefined)
+            // {
+            //   allyears[year] = d;
+            //   allDetails[d["County"].split(" ").join("_")] = allyears
+            // }
+
+            // })// end of allRData.forEach
+
+        } catch (error) {
+            return;
+        }
+
+    }// end of fillMap()
+
+
+    function example() {
+
+
+        var margin = {
+            top: 0,
+            bottom: 50,
+            left: 60,
+            right: 0
+        };
+        var width = 500;
+        var height = 500;
+        var xaxis = d3.svg.axis();
+        var yaxis = d3.svg.axis();
+        xscale = d3.scale.linear();
+        yscale = d3.scale.linear();
+        var rscale = d3.scale.linear();
+        rscale.range([3, 25]);
+        var zoomable = true;
+
+
+        var xyzoom = d3.behavior.zoom()
+            .x(xscale)
+            .y(yscale)
+            .on("zoom", function () {
+                durationValue = 500;
+                zoomable ? draw1 : null
+            });
+        var xzoom = d3.behavior.zoom()
+            .x(xscale)
+            .on("zoom", zoomable ? draw2 : null);
+        var yzoom = d3.behavior.zoom()
+            .y(yscale)
+            .on("zoom", zoomable ? draw3 : null);
+
+        function chart(selection) {
+            selection.each(function (data) {
+                if (isGraphAlreadyDrawn === "NO") {
+                    svgR = d3.select("#Rchart").selectAll('svg').data([data]);
+                    svgR.enter().append('svg').attr("class", "mainRSVG").attr("height", 500).attr("width", 500);
+                    gR = svgR.append('g')
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                    gR.append("defs").append("clipPath")
+                        .attr("id", "clip")
+                        .append("rect")
+                        .attr("width", width - margin.left - margin.right)
+                        .attr("height", height - margin.top - margin.bottom);
+
+                    gR.append("svg:rect")
+                        .attr("class", "border")
+                        .attr("width", width - margin.left - margin.right)
+                        .attr("height", height - margin.top - margin.bottom)
+                        .style("stroke", "black")
+                        .style("fill", "none");
+
+                    gR.append("g").attr("class", "x axis")
+                        .attr("transform", "translate(" + 0 + "," + (height - margin.top - margin.bottom) + ")");
+
+                    gR.append("g").attr("class", "y axis");
+
+
+                    gR
+                        .append("svg:rect")
+                        .attr("class", "zoom xy box")
+                        .attr("width", width - margin.left - margin.right)
+                        .attr("height", height - margin.top - margin.bottom)
+                        .style("visibility", "hidden")
+                        .attr("pointer-events", "all")
+                        .call(xyzoom);
+
+                    gR
+                        .append("svg:rect")
+                        .attr("class", "zoom x box")
+                        .attr("width", width - margin.left - margin.right)
+                        .attr("height", 30)
+                        .attr("transform", "translate(" + 0 + "," + (height - margin.top - margin.bottom) + ")")
+                        .style("visibility", "hidden")
+                        .attr("pointer-events", "all")
+                        .call(xzoom);
+
+                    gR
+                        .append("svg:rect")
+                        .attr("class", "zoom y box")
+                        .attr("width", margin.left)
+                        .attr("height", height - margin.top - margin.bottom)
+                        .attr("transform", "translate(" + -margin.left + "," + 0 + ")")
+                        .style("visibility", "hidden")
+                        .attr("pointer-events", "all")
+                        .call(yzoom);
+
+
+                    gR.append("g")
+                        .attr("class", "scatter")
+                        .attr("clip-path", "url(#clip)");
+
+
+			
+			gR.append("text")
+			    .attr("x", 200)
+			    .attr("y", 470)
+			    .style("text-anchor", "middle")
+			    .text("Win Margin (%)");
+
+			gR.append("text")
+			    .attr("transform", "rotate(-90)")
+			    .attr("y", 250)
+			    .attr("x", 0)
+			    .attr("dy", "1em")
+			    .style("text-anchor", "middle")
+			    .text("Percent Unemployed (%)");
+
+
+                    isGraphAlreadyDrawn = "YES"
+                }
+
+
+                // Update the x-axis
+
+                xscale.domain(d3.extent(data, function (d) {
+                    return +d["difference"];
+                }))
+                    .range([0, width - margin.left - margin.right]);
+
+                xaxis.scale(xscale)
+                    .orient('bottom')
+                    .tickPadding(10);
+
+                svgR.select('.x.axis').transition().duration(500).call(xaxis);
+
+                // Update the y-scale.
+                yscale.domain(d3.extent(data, function (d) {
+                    return +d["unemployment"];
+                }))
+                    .range([height - margin.top - margin.bottom, 0]);
+
+                yaxis.scale(yscale)
+                    .orient('left')
+                    .tickPadding(10);
+
+                svgR.select('.y.axis').transition().duration(500).call(yaxis);
+
+                // update the rscale
+
+                rscale.domain([0, d3.max(data, function (d) {
+                    return +d["total"];
+                })]);
+
+
+                draw(data);
+
+
+            });
+
+
+            return chart;
+        }
+
+        function update(data) {
+
+            try {
+
+                var gs = svgR.select("g.scatter");
+
+
+                var circle = gs.selectAll("circle")
+                    .data(data);
+
+                circle.enter()
+                    .append("svg:circle")
+                    .attr("class", "points")
+                    .attr("id", function (d) {
+                        return "xy" + d["fips"];
+                    })
+                    .style("fill", function (d) {
+                        if (d["party"] === "Republican") {
+                            return "red";
+                        }
+                        else {
+                            return "blue";
+                        }
+
+                    })
+                    .attr("cx", function (d) {
+                        return X(d);
+                    })
+                    .attr("cy", function (d) {
+                        return Y(d);
+                    })
+                    .attr("r", function (d) {
+                        return R(d);
+                    })
+                    .on("dblclick", function () {
+                        var thisID = this.id;
+                        thisID = thisID.replace("xy", "");
+                        drawChart(dataAll[thisID]);
+                    })
+                    .on("mouseover", function () {
+                        var thisID = this.id;
+                        thisID = thisID.replace("xy", "");
+                        gs.selectAll("circle.points").style("opacity", 0.1);
+                        d3.select(this).style("opacity", 1);
+                        d3.selectAll(".county-boundary")
+                            .style("fill", function (d2) {
+                                if (d2.id != thisID)
+                                    return "white";
+                                else {
+                                    if (dataAll[d2.id][selectedYear].party == "Republican")
+                                        return "red";
+                                    else
+                                        return "blue";
+                                }
+                            });
+//                    var fipsCode = d3.select(this).attr("id");
+//
+//                    drawOtherYears(fipsCode);
+
+                    })
+                    .on("mouseout", function () {
+                        gs.selectAll("circle.points").style("opacity", 1);
+//                    d3.selectAll(".tempRCircle").remove();
+                        var this1;
+                        d3.selectAll(".county-boundary")
+                            .style("fill", function (d2, i) {
+                                if(listData.length>0){
+                                    try{
+                                        for(var v=0;v<listData.length;v++){
+                                            if(+listData[v].fips===d2.id) {
+                                                if (listData[v].party == "Republican"){
+                                                    return "red";
+                                                }
+                                                else
+                                                    return "blue";
+                                            }
+                                        }
+                                        return "white"
+                                    } catch(error){
+                                        return;
+                                    }
+                                }
+                                else
+                                    if(d2){
+                                        try{
+                                            if(dataAll[d2.id][selectedYear].party=="Republican")
+                                                return "red";
+                                            else
+                                                return "blue";
+                                        }catch(error){
+                                            return;
+                                        }
+                                    }
+                            });
+                    })
+
+                    .append("svg:title").text(function (d) {
+                    return d["county"];
+                });
+
+                circle.transition().attr("cx", function (d) {
+                    return X(d);
+                })
+                    .attr("cy", function (d) {
+                        return Y(d);
+                    }).duration(durationValue);
+
+                circle.exit().transition().duration(1500).remove();
+
+            } catch (error) {
+                return;
+            }
+
+        }
+
+        function drawOtherYears(fips) {
+            console.log(allDetails2004[fips])
+            var localRData = []
+            localRData.push(allDetails2004[fips]);
+            localRData.push(allDetails2008[fips]);
+            localRData.push(allDetails2012[fips]);
+
+            xscale.domain([0, 90])
+                .range([0, width - margin.left - margin.right]);
+
+            yscale.domain([0, 30])
+                .range([height - margin.top - margin.bottom, 0]);
+
+            svgR.select('g.x.axis').call(xaxis);
+            svgR.select('g.y.axis').call(yaxis);
+
+            drawNew(allDetails2004[fips], fips);
+            drawNew(allDetails2008[fips], fips);
+            drawNew(allDetails2012[fips], fips);
+            zoom_update(localRData);
+
+        }
+
+
+        function drawNew(one_data, fips) {
+
+            console.log(one_data)
+
+
+            d3.select("g.scatter").append("svg:circle").attr("class", "tempRCircle")
+                .style("fill", function () {
+
+
+                    if (one_data["party"] === "Republican") {
+                        return "red";
+                    }
+                    else {
+                        return "blue";
+                    }
+
+                })
+                .attr("cx", X(one_data))
+                .attr("cy", Y(one_data))
+                .attr("r", R(one_data))
+
+
+            //d3.selectAll(".points").style("opacity",0)
+
+            d3.selectAll(".tempRCircle").style("opacity", 1)
+
+
+        }
+
+        function zoom_update(data) {
+            xyzoom = d3.behavior.zoom()
+                .x(xscale)
+                .y(yscale)
+                .on("zoom", zoomable ? draw : null);
+            xzoom = d3.behavior.zoom()
+                .x(xscale)
+                .on("zoom", zoomable ? draw : null);
+            yzoom = d3.behavior.zoom()
+                .y(yscale)
+                .on("zoom", zoomable ? draw : null);
+
+            svgR.select('rect.zoom.xy.box').call(xyzoom);
+            svgR.select('rect.zoom.x.box').call(xzoom);
+            svgR.select('rect.zoom.y.box').call(yzoom);
+        }
+
+        function draw(data) {
+
+//        if(counter < 3)
+//        {
+//            durationValue = 2000;
+//            counter = counter + 1;
+//        }
+//        else
+//        {
+//            durationValue = 550
+//        }
+
+            data = allRData;
+
+
+            svgR.select('g.x.axis').call(xaxis);
+            svgR.select('g.y.axis').call(yaxis);
+
+            update(data);
+            zoom_update(data);
+        };
+
+
+        function draw1(data) {
+
+            data = allRData;
+            durationValue = 1500;
+
+            svgR.select('g.x.axis').call(xaxis);
+            svgR.select('g.y.axis').call(yaxis);
+
+            update(data);
+            zoom_update(data);
+        };
+
+
+        function draw2(data) {
+
+            data = allRData;
+            durationValue = 0;
+
+
+            svgR.select('g.x.axis').call(xaxis);
+            svgR.select('g.y.axis').call(yaxis);
+
+            update(data);
+            zoom_update(data);
+        };
+
+
+        function draw3(data) {
+
+            data = allRData;
+            durationValue = 0;
+
+
+            svgR.select('g.x.axis').call(xaxis);
+            svgR.select('g.y.axis').call(yaxis);
+
+            update(data);
+            zoom_update(data);
+        };
+
+
+        // X value to scale
+
+        function X(d) {
+            return +xscale(+d["difference"]);
+        }
+
+        // Y value to scale
+
+        function Y(d) {
+            if (+d["unemployment"] === NaN)
+                return;
+            else
+                return +yscale(+d["unemployment"]);
+        }
+
+        function R(d) {
+            return +rscale(+d["total"]);
+
+        }
+
+        chart.zoom = function (_) {
+            if (!arguments.length) return zoomable;
+            zoomable = _;
+            return chart;
+        }
+
+        return chart;
+    }
+
+    ///////////////////////////////////ScatterPlot//////////////////
+
+
+    var listFIPS = [];
+
+    function drawChart(inCounty) {
+        d3.selectAll(".svgChart").remove();
+        var margin = {top: 30, right: 20, bottom: 30, left: 80},
+            width1 = 500 - margin.left - margin.right,
+            height1 = 500 - margin.top - margin.bottom;
+
+        var svg1 = d3.select("body").append("svg")
+            .attr("width", width1 + margin.left + margin.right)
+            .attr("height", height1 + margin.top + margin.bottom)
+            .attr("class", "svgChart")
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+
+        // Set the ranges
+        var x = d3.time.scale().range([0, width1]);
+        var y = d3.scale.linear().range([height1, 0]);
+
+        // Define the axes
+        var xAxis = d3.svg.axis().scale(x)
+            .orient("bottom").ticks(3);
+
+        var yAxis = d3.svg.axis().scale(y)
+            .orient("left").ticks(10);
+
+        // Define the line
+        var valueline = d3.svg.line()
+            .interpolate('monotone')
+            .x(function (d) {
+                return x(parseDate(d.year));
+            })
+            .y(function (d) {
+                return y(d.difference);
+            });
+
+
+        var charData = [];
+        inCounty.forEach(function (d) {
+            if (d != undefined)
+                charData.push(d);
+        });
+
+        allChart.push(charData);
+        // Scale the range of the data
+
+        minY = d3.min(allChart, function (d) {
+            return d3.min(d, function (d1) {
+                return d1.difference
+            })
+        })
+        maxY = d3.max(allChart, function (d) {
+            return d3.max(d, function (d1) {
+                return d1.difference
+            })
+        })
+        minX = d3.min(allChart, function (d) {
+            return d3.min(d, function (d1) {
+                return parseDate(d1.year)
+            })
+        })
+        maxX = d3.max(allChart, function (d) {
+            return d3.max(d, function (d1) {
+                return parseDate(d1.year)
+            })
+        })
+        x.domain([minX, maxX])
+        y.domain([minY, maxY]);
+
+        svg1.append("text")
+            .attr("x", width1/2)
+            .attr("y", height1+margin.bottom)
+            .style("text-anchor", "middle")
+            .text("Year");
+
+        svg1.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -50)
+            .attr("x", 30 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Win Margin (%)");
+
+        svg1.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height1 + ")")
+            .call(xAxis);
+
+        // Add the Y Axis
+        svg1.append("g").transition()
+            .attr("class", "y axis")
+            .call(yAxis);
+
+        // Add the valueline path.
+        svg1.selectAll(".line")
+            .data(allChart)
+            .enter().append("path")
+            .attr("class", "line")
+            .attr("id", function (d) {
+                return d[0].fips;
+            })
+            .attr("d", function (d) {
+                return valueline(d);
+            })
+            .on("mouseover", function (d) {
+                d3.selectAll(".line").style("opacity", 0.1)
+                d3.select(this).style("opacity", 1);
+
+                d3.selectAll("circle.points")
+                    .style("opacity", 0.1)
+                d3.select("#xy" + d[0].fips)
+                    .style("opacity", 1)
+
+                svg1.selectAll(".winnerCircle")
+                    .style("fill-opacity", function () {
+                        try {
+                            if (this.id == d[0].fips)
+                                return 1;
+                            else
+                                return 0;
+                        } catch (error) {
+                            return;
+                        }
+                    })
+                    .style("opacity", function () {
+                        try {
+                            if (this.id == d[0].fips)
+                                return 1;
+                            else
+                                return 0.1;
+                        } catch (error) {
+                            return;
+                        }
+                    })
+                div.transition()
+                    .duration(200)
+                    .style("opacity", 1);
+                div.html(d[0].name + ", " + d[0].state)
+                    .style("left", (d3.event.pageX + 28) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
+                d3.selectAll(".county-boundary")
+                    .style("fill", function (d2) {
+                        if (d2.id != d[0].fips)
+                            return "white";
+                        else {
+                            if (dataAll[d2.id][selectedYear].party == "Republican")
+                                return "red";
+                            else
+                                return "blue";
+                        }
+
+                    })
+            })
+            .on("mouseout", function (d) {
+                d3.selectAll(".line").style("opacity", 1)
+                div.transition()
+                    .style("opacity", 0);
+                d3.selectAll(".county-boundary")
+                    .style("fill", function (d2, i) {
+                        if(listData.length>0){
+                            try{
+                                for(var v=0;v<listData.length;v++){
+                                    if(+listData[v].fips===d2.id) {
+                                        if (listData[v].party == "Republican"){
+                                            return "red";
+                                        }
+                                        else
+                                            return "blue";
+                                    }
+                                }
+                                return "white"
+                            } catch(error){
+                                return;
+                            }
+                        }
+                        else
+                        if(d2){
+                            try{
+                                if(dataAll[d2.id][selectedYear].party=="Republican")
+                                    return "red";
+                                else
+                                    return "blue";
+                            }catch(error){
+                                return;
+                            }
+                        }
+                    });
+                d3.selectAll(".winnerCircle")
+                    .style("fill-opacity", 1)
+                    .style("opacity", 1)
+                d3.selectAll("circle.points")
+                    .style("opacity", 1)
+            })
+
+        allChart.forEach(function (d) {
+            d.forEach(function (d1) {
+                svg1.append("circle")
+                    .attr("stroke", "#000")
+                    .attr("class", "winnerCircle")
+                    .attr("fill", function () {
+                        if (d1.party == "Republican")
+                            return "red";
+                        else
+                            return "blue";
+                    })
+                    .attr("cx", x(parseDate(d1.year)))
+                    .attr("cy", y(d1.difference))
+                    .attr("r", Math.pow(10, .8))
+                    .attr("id", d1.fips)
+                    .on("mouseover", function () {
+                        d3.selectAll(".winnerCircle")
+                            .style("fill-opacity", function () {
+                                //look at line when hovering over
+                                if (d1.fips == this.id)
+                                    return 1;
+                                else
+                                    return .1;
+                            })
+                            .style("opacity", function () {
+                                if (this.id == d1.fips)
+                                    return 1;
+                                else
+                                    return .1;
+                            })
+                        d3.select(this)
+                            .style("fill-opacity", 1)
+                            .style("opacity", 1)
+                        d3.selectAll("circle.points")
+                            .style("opacity", 0.1)
+                        d3.select("#xy" + this.id)
+                            .style("opacity", 1)
+                        div.transition()
+                            .duration(200)
+                            .style("opacity", 1);
+                        div.html(d[0].name + ", " + d[0].state)
+                            .style("left", (d3.event.pageX + 28) + "px")
+                            .style("top", (d3.event.pageY - 28) + "px");
+                        d3.selectAll(".county-boundary")
+                            .style("fill", function (d2) {
+                                if (d2.id != d[0].fips)
+                                    return "white";
+                                else {
+                                    if (d1.party == "Republican")
+                                        return "red";
+                                    else
+                                        return "blue";
+                                }
+
+                            })
+                        d3.selectAll(".line")
+                            .style("opacity", function (d2) {
+                                try {
+                                    if (d2[0].fips == d1.fips)
+                                        return 1;
+                                    else
+                                        return .1;
+                                } catch (error) {
+                                    return;
+                                }
+
+                            })
+                    })
+                    .on("mouseout", function () {
+                        d3.selectAll("circle")
+                            .style("fill-opacity", 1)
+                            .style("opacity", 1)
+                        d3.selectAll(".line")
+                            .style("opacity", 1)
+                        div.transition()
+                            .style("opacity", 0);
+                        d3.selectAll(".county-boundary")
+                            .style("fill", function (d2, i) {
+                                if(listData.length>0){
+                                    try{
+                                        for(var v=0;v<listData.length;v++){
+                                            if(+listData[v].fips===d2.id) {
+                                                if (listData[v].party == "Republican"){
+                                                    return "red";
+                                                }
+                                                else
+                                                    return "blue";
+                                            }
+                                        }
+                                        return "white"
+                                    } catch(error){
+                                        return;
+                                    }
+                                }
+                                else
+                                if(d2){
+                                    try{
+                                        if(dataAll[d2.id][selectedYear].party=="Republican")
+                                            return "red";
+                                        else
+                                            return "blue";
+                                    }catch(error){
+                                        return;
+                                    }
+                                }
+                            });
+                    })
+            })
+        })
+
+//            svg.append("text")
+//                .attr("transform", "rotate(-90)")
+//                .attr("y", 0-margin.left+10)
+//                .attr("x", 0-(height/2))
+//                .attr("dy", "1em")
+//                .style("text-anchor", "middle")
+//                .text("Word Frequency");
+//
+//            svg.append("text")
+//                .attr("x", (width/2)-20)
+//                .attr("y", height+15)
+//                .style("text-anchor", "middle")
+//                .text("Time");
+//
+//            svg.append("text")
+//                .attr("x", (width/2)-20)
+//                .attr("y", 0-15)
+//                .attr("text-anchor", "middle")
+//                .attr("font-size", "20px")
+//                .attr("text-decoration", "underline")
+//                .text("Stream of Word Frequency");
+
+        // Add the X Axis
+//            svg1.append("g")
+//                .attr("class", "x axis")
+//                .attr("transform", "translate(0," + height1 + ")")
+//                .call(xAxis);
+//
+//            // Add the Y Axis
+//            svg1.append("g")
+//                .attr("class", "y axis")
+//                .call(yAxis);
+    }
+
+
+    d3.csv("../Data/county.csv", function (error, data) {
+        if (error) throw error;
+        totalCount = 0;
+        data.forEach(function (d) {
+            if (dataAll[d.FIPS] == undefined)
+                dataAll[d.FIPS] = [];
+
+            dataAll[d.FIPS][d.Year] = {
+                "name": d.County,
+                "state": d.State,
+                "fips": d.FIPS,
+                "state_fips": d.State_FIPS,
+                "dvote": d.Dvote,
+                "dpercent": +d.Dpercent,
+                "rvote": d.Rvote,
+                "rpercent": +d.Rpercent,
+                "ovote": d.Ovote,
+                "opercent": +d.Opercent,
+                "winner": d.Winner,
+                "party": d.Party,
+                "difference": +d.Difference,
+                "total": +d.Total,
+                "year": d.Year
+            };
+            totalCount += dataAll[d.FIPS].total;
+        });
+    });
+
+    stateCodes = {};
+
+
+    d3.csv("../Data/state-data.csv", function (error, data) {
+        if (error) throw error;
+        data.forEach(function (d) {
+            if (stateCodes[d.ID] == undefined)
+                stateCodes[d.ID] = [];
+            stateCodes[d.ID] = {
+                "id": d.ID,
+                "code": d.Code,
+                "name": d.Name
+            };
+        });
+    });
+
+
+    d3.json("../Data/us.json", function (error, us) {
+        g.append("g")
+            .attr("id", "counties")
+            .selectAll("path")
+            .data(topojson.feature(us, us.objects.counties).features)
+            .enter().append("path")
+            .transition()
+            .attr("d", path)
+            .attr("class", "county-boundary")
+            .style("fill", "white")
+
+        g.append("g")
+            .attr("id", "states")
+            .selectAll("path")
+            .data(topojson.feature(us, us.objects.states).features)
+            .enter().append("path")
+            .transition()
+            .attr("d", path)
+            .attr("class", "state")
+            .style("opacity", 0)
+            .style("fill", "black")
+
+
+        g.append("path")
+            .datum(topojson.mesh(us, us.objects.states, function (a, b) {
+                return a !== b;
+            }))
+            .attr("id", "state-borders")
+            .attr("d", path);
+    });
+
+    function changeYear(a) {
+        filtered = 0;
+        selectedYear = a;
+        g.selectAll(".county-boundary")
+            .style("fill", function (d, i) {
+                try {
+                    if (dataAll[d.id][selectedYear].party === "Republican") {
+                        return "red";
+                    }
+                    else
+                        return "blue";
+
+                } catch (error) {
+                    return;
+                }
+            })
+            .style("opacity", function (d) {
+                try {
+
+                    var ex = d.id;
+                    if (dataAll[ex][selectedYear].difference <= 5.0) {
+                        return 0.3;
+                    }
+                    else if (dataAll[ex][selectedYear].difference > 5.0 && dataAll[ex][selectedYear].difference <= 10.0) {
+                        return 0.4;
+                    }
+                    else if (dataAll[ex][selectedYear].difference > 10.0 && dataAll[ex][selectedYear].difference <= 15.0) {
+                        return 0.5;
+                    }
+                    else if (dataAll[ex][selectedYear].difference > 15.0 && dataAll[ex][selectedYear].difference <= 20.0) {
+                        return 0.6;
+                    }
+                    else if (dataAll[ex][selectedYear].difference > 20.0 && dataAll[ex][selectedYear].difference <= 25.0) {
+                        return 0.7;
+                    }
+                    else if (dataAll[ex][selectedYear].difference > 25.0 && dataAll[ex][selectedYear].difference <= 30.0) {
+                        return 0.8;
+                    }
+                    else if (dataAll[ex][selectedYear].difference > 30.0 && dataAll[ex][selectedYear].difference <= 35.0) {
+                        return 0.9;
+                    }
+                    else if (dataAll[ex][selectedYear].difference > 35.0 && dataAll[ex][selectedYear].difference <= 40.0) {
+                        return 1.0;
+                    }
+                    else
+                        return 1.0;
+
+                } catch (error) {
+                    return;
+                }
+            })
+            .on("mouseover", function (d) {
+                var toolText;
+                if (!document.getElementById('cbox').checked) {
+                    toolText = "<br>Press 'esc' to zoom out";
+                }
+                else {
+                    toolText = "";
+                }
+                if (dataAll[d.id]) {
+                    try {
+                        dataAll[d.id][selectedYear].name = dataAll[d.id][selectedYear].name.split("").join("").replace(" County", "");
+                        if (this.style.fill != "white") {
+                            div.transition()
+                                .duration(200)
+                                .style("opacity", 1);
+                            div.html("<span><u><b>" + dataAll[d.id][selectedYear].name + " County</b></u> (" + dataAll[d.id][selectedYear].winner + " +" + dataAll[d.id][selectedYear].difference + "%)<br>" +
+                                "Democrat: " + dataAll[d.id][selectedYear].dpercent + "%<br>" +
+                                "Republican: " + dataAll[d.id][selectedYear].rpercent + "%<br><br>" +
+                                "Democrat Votes: " + dataAll[d.id][selectedYear].dvote + "<br>" +
+                                "Republican Votes: " + dataAll[d.id][selectedYear].rvote + "<br>" + toolText + "</i>" + "</span>")
+                                .style("left", (d3.event.pageX + 28) + "px")
+                                .style("top", (d3.event.pageY - 28) + "px");
+                        }
+                    } catch (error) {
+                        return;
+                    }
+                }
+
+                d3.selectAll("circle.points")
+                    .style("opacity", function(d1){
+                        if(d1 && d){
+                            try{
+                                if(this.style.fill === "white"){
+                                    return 1;
+                                }
+                                else{
+                                    try{
+                                        if(+d1.fips===+d.id)
+                                            return 1;
+                                        else
+                                            return 0.1;
+                                    }catch(error){
+                                        return;
+                                    }
+                                }
+                            }catch(error){
+                                return;
+                            }
+                        }
+                    })
+            })
+            .on("mouseout", function (d) {
+                div.transition()
+                    .style("opacity", 0);
+                d3.selectAll("circle.points")
+                    .style("opacity", 1)
+            })
+            //                .on("click", countyclicked);
+            .on("click", function (d) {
+                drawChart(dataAll[d.id])
+            });
+
+        g.selectAll(".state")
+            .on("mouseover", function (d) {
+                this.style.opacity = .8;
+                div.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                div.html(stateCodes[d.id].name)
+                    .style("left", (d3.event.pageX) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
+            })
+            .on("mouseout", function (d) {
+                g.selectAll(".state")
+                    .style("opacity", 0)
+                div.transition()
+                    .style("opacity", 0);
+            })
+            .on("click", clicked);
+    }
+
+
+    var clickedState;
+    function clicked(d) {
+        if (d)
+            clickedState = d.id;
+        var x, y, k;
+
+        if (d && centered !== d) {
+            var centroid = path.centroid(d);
+            x = centroid[0];
+            y = centroid[1];
+            k = 4;
+            centered = d;
+        } else {
+            x = width / 2;
+            y = height / 2;
+            k = 1;
+            centered = null;
+        }
+
+        document.getElementById('cbox').disabled = true;
+
+        g.selectAll("path")
+            .classed("active", centered && function (d) {
+                    return d === centered;
+
+                });
+
+
+        g.transition()
+            .duration(750)
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+            .style("stroke-width", 1.5 / k + "px");
+    }
+
+    function countyclicked(d) {
+        clickedState = null;
+        clicked();
+    }
+
+    listData = [];
+    var filtered = 0;
+
+    function margin(a, x) {
+        listFIPS.splice(0);
+        filtered = 1;
+        document.getElementById('totalbox').value = '';
+        listData.splice(0);
+        var count = 0.0;
+        g.selectAll(".county-boundary")
+            .style("fill", function (d) {
+                if (x == 1) {
+                    if (dataAll[d.id]) {
+                        try {
+                            if ((dataAll[d.id][selectedYear].state_fips == clickedState) && (dataAll[d.id][selectedYear].difference >= a)) {
+                                try {
+                                    if (dataAll[d.id][selectedYear].party === "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        count++;
+                                        return "red";
+                                    }
+                                    else {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        count++;
+                                    }
+                                    return "blue";
+
+                                } catch (error) {
+                                    return;
+                                }
+                            }
+                            else if ((clickedState == null) && (dataAll[d.id][selectedYear].difference >= a)) {
+                                try {
+                                    var ex = d.id;
+                                    if (dataAll[d.id][selectedYear].party === "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        count++;
+                                        return "red";
+                                    }
+                                    else {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        count++;
+                                    }
+                                    return "blue";
+
+                                } catch (error) {
+                                    return;
+                                }
+                            }
+                            else
+                                return "white";
+                        }
+                        catch (error) {
+                            return;
+                        }
+
+                    }
+                }
+                else {
+                    if (dataAll[d.id]) {
+                        try {
+                            if ((dataAll[d.id][selectedYear].state_fips == clickedState) && (dataAll[d.id][selectedYear].difference <= a)) {
+                                try {
+                                    var ex = d.id;
+                                    if (dataAll[d.id][selectedYear].party === "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        count++;
+                                        return "red";
+                                    }
+                                    else {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        count++;
+                                    }
+                                    return "blue";
+
+                                } catch (error) {
+                                    return;
+                                }
+                            }
+                            else if ((clickedState == null) && (dataAll[d.id][selectedYear].difference <= a)) {
+                                try {
+                                    var ex = d.id;
+                                    if (dataAll[d.id][selectedYear].party === "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        count++;
+                                        return "red";
+                                    }
+                                    else {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        count++;
+                                    }
+                                    return "blue";
+
+                                } catch (error) {
+                                    return;
+                                }
+                            }
+                            else
+                                return "white";
+                        } catch (error) {
+                            return;
+                        }
+
+                    }
+                }
+            });
+        var html = "<table border='1|1'>";
+        listData.sort(function (a, b) {
+            return parseFloat(b.difference) - parseFloat(a.difference);
+        });
+        html += "<td></td>";
+        html += "<td>Winner/Margin</td>";
+        html += "<td>State</td>";
+        html += "<td>County</td>";
+        html += "<td>Winner</td>";
+        html += "<td>Percent of total votes</td>";
+        for (var i = 0; i < listData.length; i++) {
+            html += "<tr>";
+            html += "<td>" + (i + 1) + "</td>";
+            html += "<td>" + listData[i].winner + "/(+" + listData[i].difference + ")</td>";
+            html += "<td>" + listData[i].state + "</td>";
+            html += "<td>" + listData[i].name + "</td>";
+            html += "<td>" + listData[i].winner + "</td>";
+            html += "<td>" + (listData[i].total / totalCount) * 100 + "</td>";
+
+            html += "</tr>";
+
+        }
+        html += "</table>";
+        document.getElementById("box").innerHTML = html;
+
+        listTemp(listData);
+        listData.forEach(function (d) {
+            listFIPS.push(+d.fips);
+        })
+
+    }
+
+    var startSig = 0;
+    function reset() {
+        filtered = 0;
+        listFIPS.splice(0);
+        d3.selectAll("circle.points").attr("display", "block")
+        temp(selectedYear.toString())
+        document.getElementById('pumpbox').value = '';
+        document.getElementById('totalbox').value = '';
+        clicked();
+        listData.splice(0);
+        clickedState = null;
+        d3.selectAll("table").remove();
+        d3.selectAll(".svgChart").remove();
+        document.getElementById('cbox').disabled = false;
+        document.getElementById('cbox').checked = false;
+
+        allChart.splice(0);
+
+        g.selectAll(".county-boundary")
+            .style("fill", function (d) {
+                try {
+                    var ex = d.id;
+                    if (dataAll[d.id][selectedYear].party === "Republican") {
+                        return "red";
+                    }
+                    else
+                        return "blue";
+
+                } catch (error) {
+                    return;
+                }
+            })
+    }
+
+    function total(a, x) {
+        listFIPS.splice(0);
+        filtered = 1;
+        document.getElementById('pumpbox').value = '';
+        listData.splice(0);
+
+        g.selectAll(".county-boundary")
+            .style("fill", function (d) {
+                if (x == 1) {
+                    if (dataAll[d.id]) {
+                        try {
+                            if (dataAll[d.id][selectedYear].state_fips == clickedState && dataAll[d.id][selectedYear].total >= a) {
+                                try {
+                                    var ex = d.id;
+                                    if (dataAll[d.id][selectedYear].party == "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        return "red";
+                                    }
+                                    else
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                    return "blue";
+
+                                } catch (error) {
+                                    return;
+                                }
+                            }
+                            else if (clickedState == null && dataAll[d.id][selectedYear].total >= a)
+                                try {
+                                    var ex = d.id;
+                                    if (dataAll[d.id][selectedYear].party === "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        return "red";
+                                    }
+                                    else
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                    return "blue";
+
+                                } catch (error) {
+                                    return;
+                                }
+                            else
+                                return "white";
+                        } catch (error) {
+                            return;
+                        }
+                    }
+                }
+                else {
+                    if (dataAll[d.id]) {
+                        try {
+                            if (dataAll[d.id][selectedYear].state_fips == clickedState && dataAll[d.id][selectedYear].total <= a) {
+                                try {
+                                    var ex = d.id;
+                                    if (dataAll[d.id][selectedYear].party == "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        return "red";
+                                    }
+                                    else
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                    return "blue";
+
+                                } catch (error) {
+                                    return;
+                                }
+                            }
+                            else if (clickedState == null && dataAll[d.id][selectedYear].total <= a)
+                                try {
+                                    var ex = d.id;
+                                    if (dataAll[d.id][selectedYear].party === "Republican") {
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                        return "red";
+                                    }
+                                    else
+                                        listData.push(dataAll[d.id][selectedYear]);
+                                    return "blue";
+
+                                } catch (error) {
+                                    return;
+                                }
+                            else
+                                return "white";
+                        } catch (error) {
+                            return;
+                        }
+                    }
+                }
+            })
+        var html = "<table border='1|1'>";
+        listData.sort(function (a, b) {
+            return parseFloat(b.total) - parseFloat(a.total);
+        });
+        html += "<td>Total Votes</td>";
+        html += "<td>State</td>";
+        html += "<td>County</td>";
+        html += "<td>Winner</td>";
+        for (var i = 0; i < listData.length; i++) {
+            html += "<tr>";
+            html += "<td>" + numberWithCommas(listData[i].total) + "</td>";
+            html += "<td>" + listData[i].state + "</td>";
+            html += "<td>" + listData[i].name + "</td>";
+            html += "<td>" + listData[i].winner + "</td>";
+
+            html += "</tr>";
+
+        }
+        html += "</table>";
+        document.getElementById("box").innerHTML = html;
+        listData.forEach(function (d) {
+            listFIPS.push(+d.fips);
+        })
+        listTemp(listData);
+    }
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function yearChange() {
+        selectedYear = 2008;
+        g.selectAll("path").transition();
+        reset();
+    }
+    function yearChange1() {
+        selectedYear = 2012;
+        reset();
+    }
+
+    function countyState() {
+        if (document.getElementById('cbox').checked) {
+            g.selectAll("path")
+                .classed("active", 1);
+        }
+        else {
+            g.selectAll("path")
+                .classed("active", 0);
+        }
+    }
+
+    document.onkeydown = function (evt) {
+        evt = evt || window.event;
+        if (evt.keyCode == 27 && document.getElementById('cbox').checked == false) {
+            clicked();
+            clickedState = null;
+            document.getElementById('cbox').disabled = false;
+        }
+    };
+
+    d3.select('#slider').call(slider);
+
+
+    // ------------------------------- Andrew --------------------
+
+</script>
+<div id="chart"></div>
+
+<br>
+Margin(%): <input name="Pump" id="pumpbox" type="text"/>
+<input name="buttonPump" onclick="margin(document.getElementById('pumpbox').value,1)" type="button"
+       value="Greater than"/>
+<input name="buttonDrop" onclick="margin(document.getElementById('pumpbox').value,0)" type="button"
+       value="Less than"/><br>
+
+Total Votes: <input name="Total" id="totalbox" type="text"/>
+<input name="buttonTotalGreater" onclick="total(document.getElementById('totalbox').value,1)" type="button"
+       value="Greater than"/>
+<input name="buttonTotalLess" onclick="total(document.getElementById('totalbox').value,0)" type="button"
+       value="Less than"/><br>
+<button onclick="reset()">Reset</button>
+<br>
+<label><input type="checkbox" id="cbox" value="county_state" onchange="countyState()">Show County</label><br>
+<table id="table"></table>
+<div id="box"></div>
+
+
+
+
+</div>
+
+<div id="Poll" class="tabcontent">
+  <h3>Poll</h3>
+
+
+    <div id="bodyContainer">
+      <div id = "leftMenu"> OPTIONS
+        <br>
+        <br>
+        <input type="button" value="STOP" onclick = "stop()"> </input>
+        <br>
+       <br>
+       <br>
+        <input type="button" value="RESET" onclick = "reset()"> </input>
+
+      </div>
+      <div id = "svgContainer">
+
+        <div id ="mapContainer"> 
+
+          <div id = "forMap"> </div>
+          <div id = "forGraph"> </div>
+
+        </div>
+        <div id = "graphContainer"> </div>
+
+       </div>
+    </div>
+   
+  <script type="text/javascript">
+
+    //Global Variables
+
+    var allData;
+    var onlyUSPolls = [];
+    var endDateIsPresent = [];
+    var allDates = new Map();
+    var allStates = new Map();
+    var path;
+    var isChartAlreadyDrawn = "NO";
+    var isBarAlreadyDrawn = "NO";
+    var g1;
+    var arc;
+    var pie;
+    var statesUsed = [];
+    var statesUnused = [];
+    var counter = 0;
+    var isdblClicked = "NO";
+
+
+    //Setting properties for the svgContainer
+
+    
+    var mapSVG = d3.select("#forMap")
+              .append("svg")
+                .attr("class","mapSVG")
+                .attr("width", "100%")
+                .attr("height", "100%");
+
+
+    mapSVG.append("text").attr("id","datetext").attr("x",250).attr("y",20).text("").style("font-size",20)
+
+
+
+
+
+    
+
+    // var chartSVG = d3.select("#graphContainer")
+    //          .append("svg")
+    //            .attr("class","chartSVG")
+    //            .attr("width", "100%")
+    //            .attr("height", "100%");  
+
+
+    var barChartSVG = d3.select("#forGraph")
+              .append("svg")
+                .attr("class","barChartSVG")
+                .attr("width", "100%")
+                .attr("height", "100%");      
+
+                  
+
+
+      
+    // Code for SVG..........................................................
+    
+      //Width and height of map
+      var width = 428;
+      var height = 469;
+      var allStatesJsonData;
+      var map;
+      var stateColor;
+
+      
+      
+      // D3 Projection
+      var projection = d3.geo.albersUsa()
+                 .translate([330, 190])    // translate to center of screen
+                 .scale([750]);          // scale things down so see entire US
+              
+      // Define path generator
+      var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
+               .projection(projection);  // tell path generator to use albersUsa projection
+
+          
+      // Define linear scale for output
+      var color = d3.scale.linear()
+              .range(["rgb(213,222,217)","rgb(69,173,168)","rgb(84,36,55)","rgb(217,91,67)"]);
+
+
+      // Load GeoJSON data and merge with states data
+      d3.json("us-states.json", function(error, json) {
+        allStatesJsonData = json;
+        // Bind the data to the SVG and create one path per GeoJSON feature
+         map = mapSVG.selectAll("path")
+              .data(allStatesJsonData.features)
+              .enter()
+              .append("path")
+                .attr("class","map")
+                .attr("id", function(d){ 
+                  statesUsed.push(d.properties.name.split(' ').join('_'))
+                  return d.properties.name.split(' ').join('_');})  
+                .attr("d", path)
+                .style("stroke", "#fff")
+                .style("stroke-width", "1")
+                .style("fill", function(d) {    
+                  return "rgb(213,222,217)";
+                })
+      })
+
+      //Loading the poll data
+
+      d3.csv("../Data/presidential_polls.csv", function(error,_data){
+
+        allData = _data;
+
+        allData.forEach(function(d){
+
+          if(allStates[d.state.split(" ").join("_")] === undefined)
+          {
+            allStates[d.state.split(" ").join("_")] = new Map()
+
+
+            if (allStates[d.state.split(" ").join("_")][d.enddate] === undefined )
+            {
+              allStates[d.state.split(" ").join("_")][d.enddate] = [d]
+            }
+            else
+            {
+              allStates[d.state.split(" ").join("_")][d.enddate].push(d)
+            }
+            
+
+          }
+          else
+          {
+            //allStates[d.state.split(" ").join("_")].push(d)
+            if (allStates[d.state.split(" ").join("_")][d.enddate] === undefined )
+            {
+              allStates[d.state.split(" ").join("_")][d.enddate] = [d]
+            }
+            else
+            {
+              allStates[d.state.split(" ").join("_")][d.enddate].push(d)
+            }
+
+          }
+
+        })// end of allData.forEach()
+
+        colorByDate(allStates)
+
+      }) //end of d3.csv
+
+
+      function colorByDate(theStates)
+      {
+        var dates = ["10/1/2016","10/2/2016","10/3/2016","10/4/2016","10/5/2016","10/6/2016","10/7/2016","10/9/2016","10/10/2016","10/11/2016"
+              , "10/12/2016","10/13/2016","10/14/2016","10/15/2016","10/16/2016","10/17/2016","10/18/2016","10/19/2016","10/20/2016","10/21/2016"
+              ,"10/22/2016","10/23/2016","10/24/2016","10/25/2016","10/26/2016","10/27/2016","10/28/2016","10/29/2016","10/30/2016","10/31/2016"
+        ]
+
+        async.eachSeries(dates, function(date,callback){
+
+          // d3.selectAll("#datetext").transition().text(date).duration(1000)
+          drawSmallMap(date)
+
+          setTimeout(function()
+          {
+            //console.log(date)
+
+            Object.keys(allStates).forEach(function(key){
+
+              d3.selectAll(".map").style("fill","rgb(213,222,217)");
+              
+              colorStates(date,key)
+            })
+
+            d3.selectAll("#datetext").transition().text(date).duration(1000)
+
+            if(isdblClicked === "NO")           
+              callback();
+            else
+              callback("stop")
+          
+          },1500)
+          
+        }) // end of aynch
+
+      }
+
+
+      function drawSmallMap(date)
+      {
+        counter = counter + 1;
+        var sMap =d3.select("#graphContainer").append("svg").attr("class","smallSVG").attr("id",date).attr("width",70).attr("height",70)//.append("title").text(date)//.append("text").attr("x",10)
+              //.attr("y",20).text(date).style("font-size","5px");
+
+        // D3 Projection
+        var projection = d3.geo.albersUsa()
+                   .translate([35, 35])    // translate to center of screen
+                   .scale([100]);          // scale things down so see entire US
+                
+        // Define path generator
+        var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
+                 .projection(projection);  // tell path generator to use albersUsa projection
+
+            
+        // Define linear scale for output
+        var color = d3.scale.linear()
+                .range(["rgb(213,222,217)","rgb(69,173,168)","rgb(84,36,55)","rgb(217,91,67)"]);
+
+
+        // Load GeoJSON data and merge with states data
+        d3.json("us-states.json", function(error, json) {
+          allStatesJsonData = json;
+          // Bind the data to the SVG and create one path per GeoJSON feature
+            sMap.selectAll("path")
+                .data(allStatesJsonData.features)
+                .enter()
+                .append("path")
+                  .attr("class","map1")
+                  .attr("id", function(d){ 
+                    statesUsed.push(d.properties.name.split(' ').join('_'))
+                    return d.properties.name.split(' ').join('_') + counter;})  
+                  .attr("d", path)
+                  .style("stroke", "#fff")
+                  .style("stroke-width", "1")
+                  .style("fill", function(d) {    
+                    return "rgb(213,222,217)";
+                  })
+                  .on("dblclick", function()
+                    {
+                      isdblClicked = "YES"
+                      Object.keys(allStates).forEach(function(key){
+
+                        d3.selectAll(".map").style("fill","rgb(213,222,217)");
+                        d3.select("#datetext").text(date);  
+
+                        colorStates(date,key)
+
+                      })
+                    });
+        })// End of d3.json
+
+        sMap.append("text").attr("x",3)
+              .attr("y",11).text(date).style("font-size","10px"); 
+
+      }
+
+      function colorStates(date,key)
+      {
+                var trumpAvg = 0
+                var clintonAvg = 0
+
+
+              try{
+
+                allStates[key][date].forEach(function (d){
+
+                  trumpAvg = trumpAvg + parseInt(d.rawpoll_trump)
+                  clintonAvg = clintonAvg + parseInt(d.rawpoll_clinton)
+                })
+
+                // d3.selectAll(".map").style("fill","rgb(213,222,217)");
+
+                drawBarChart(trumpAvg/allStates[key][date].length, clintonAvg/allStates[key][date].length )
+
+                if (trumpAvg/allStates[key][date].length > clintonAvg/allStates[key][date].length )
+                {
+                  try
+                  {
+                    d3.selectAll("#" + key.split(" ").join("_")).transition().style("fill","red").duration(1000);
+                    //console.log("#" + key.split(" ").join("_") + "_small" + counter)
+                    d3.selectAll("#" + key.split(" ").join("_") + counter).transition().style("fill","red").duration(1000);
+
+                  }catch (error)
+                  {return;}
+                  
+                }
+                else
+                {
+
+                  try
+                  {
+                    d3.selectAll("#" + key.split(" ").join("_")).transition().style("fill","blue").duration(1000)
+                    d3.selectAll("#" + key.split(" ").join("_") + counter).transition().style("fill","blue").duration(1000);
+                    
+                  }catch (error)
+                  {
+                    return;
+
+                  }
+
+                }
+
+                
+
+              } catch (error)
+              { 
+
+                return;
+
+              }
+      }
+
+
+      
+
+
+      
+      function getColor(theValue)
+      {
+        if(theValue === "Trump")
+          return "red"
+        else
+          return "#3800ff"
+      }
+
+
+      function drawBarChart(trumpAvg,clintonAvg)
+      {
+        var totalRectangleWidth = 600;
+        var trumpRectWidth = ((trumpAvg / 100) * totalRectangleWidth )
+        var clintonRectWidth = ((clintonAvg / 100) * totalRectangleWidth )
+        var leftWidth = ((totalRectangleWidth - (trumpRectWidth + clintonRectWidth)) / 2 ) 
+        var rectTrump;
+        var rectClinton;
+        var mapcolor;
+
+        //totalRectangleWidth =  (trumpRectWidth + clintonRectWidth);
+        trumpRectWidth = trumpRectWidth + leftWidth;
+        clintonRectWidth = clintonRectWidth + leftWidth;
+
+        
+        if (trumpRectWidth > clintonRectWidth)
+          mapcolor = "red"
+        else if(trumpRectWidth < clintonRectWidth)
+          mapcolor = "blue"
+        else
+          mapcolor = "rgb(213,222,217)"
+        
+
+
+        if(isBarAlreadyDrawn === "NO")
+        {
+          rectTrump = barChartSVG.append("rect")
+                      .transition()
+                      .attr("class","rectTrump")
+                      .attr("x", 10)
+                      .attr("y", 40)
+                      .attr("height", 20)
+                      .attr("width",trumpRectWidth)
+                      .style("fill","red")
+                      .duration(750)
+
+          barChartSVG.append("text").attr("class","trumpText").attr("x",trumpRectWidth - 65).attr("y",55).style("fill","white")
+                      .text("Trump: " + trumpAvg + "%" )
+                      
+                      
+
+          rectClinton = barChartSVG.append("rect")
+                      .transition()
+                      .attr("class","rectClinton")
+                      .attr("x", (trumpRectWidth+12))
+                      .attr("y", 40)
+                      //.attr("transform","rotate(180)")
+                      .attr("height", 20)
+                      .attr("width",(totalRectangleWidth - trumpRectWidth))
+                      .style("fill","blue")
+                      .duration(750);
+
+          //d3.selectAll(".map").transition().style("fill",mapcolor).duration(1000)
+
+          barChartSVG.append("text").attr("class","clintonText").attr("x",trumpRectWidth+14).attr("y",55).style("fill","white")
+                      .text("Clinton: " + clintonAvg + "%" )
+
+          isBarAlreadyDrawn = "YES"
+        }
+        else
+        {
+          d3.selectAll(".rectTrump").transition().attr("width",trumpRectWidth).duration(1000);
+          d3.selectAll(".rectClinton").transition().attr("x", (trumpRectWidth + 12)).attr("width",(totalRectangleWidth- trumpRectWidth)).duration(1000);
+          //d3.selectAll(".map").transition().style("fill",mapcolor).duration(1000);
+          d3.selectAll(".trumpText").transition().attr("x", trumpRectWidth - 65).text("Trump: " + trumpAvg + "%" ).duration(1000);
+          d3.selectAll(".clintonText").transition().attr("x",trumpRectWidth+14).text("Clinton: " + clintonAvg + "%" ).duration(1000)
+
+        }
+
+        
+
+      } // end of fucntion drawBarChart(_data)
+
+
+
+      function drawPieChart(_data)
+      {
+
+        //d3.select(".piechart").remove();
+
+        var formattedData = [
+                    { legend: "Trump", count: _data.rawpoll_trump},
+                    { legend: "Clinton", count: _data.rawpoll_clinton}
+                  ];  
+      
+        var radius = 120;
+
+            arc = d3.svg.arc()
+              .innerRadius(100)
+              .outerRadius(radius);
+
+            pie = d3.layout.pie()
+              .value(function(d) { return d.count; })
+              .sort(null);
+
+
+            if (isChartAlreadyDrawn === "NO")
+            {
+              g1 = chartSVG.append('g')
+                .attr("class","piechart")
+                  .attr('transform', 'translate(' + 150 +
+                  ',' + 150+ ')');
+
+              path = g1.selectAll('path')
+                    .data(pie(formattedData))
+                  .enter()
+                    .append('path')
+                      .attr("class","piePath")
+                      .attr('d', arc)
+                      .style('fill', function(d) {
+                             return getColor(d.data.legend);
+                      })
+                      .each(function(d) { this._current = d; })
+                    .append("title")
+                      .text(function(d){ return (d.data.legend);})
+
+                 // remove data not being used
+                g1.datum(formattedData).selectAll("path")
+                 .data(pie).exit().remove();
+
+
+                isChartAlreadyDrawn = "YES"
+
+            }
+            else
+            {
+              
+              g1.selectAll(".piePath").data(pie(formattedData))
+                .transition()
+                .attr('d',arc)
+                .duration(1500)
+                .attrTween("d", arcTween);
+
+
+              // Store the displayed angles in _current.
+          // Then, interpolate from _current to the new angles.
+          // During the transition, _current is updated in-place by d3.interpolate.
+          function arcTween(a) {
+            var i = d3.interpolate(this._current, a);
+            this._current = i(0);
+            return function(t) {
+              return arc(i(t));
+            };
+          }
+
+
+
+
+
+
+            }
+
+            
+
+      }// end of fucntion drawPieChart(_data)
+
+
+      function stop()
+      {
+        isdblClicked = "YES";
+      }
+
+      function reset()
+      {
+        stop();
+
+        
+        setTimeout(function(d){
+          d3.selectAll(".smallSVG").remove();
+          isdblClicked = "NO";
+          colorByDate(allStates);
+          
+        },1000)
+
+        
+        
+      }
+
+
+      function start()
+      {
+        isdblClicked = "NO";
+      }
+
+
+
+
+    </script>
+
+
+ 
+</div>
+
+<div id="BubbleChart" class="tabcontent">
+  <h3>Tab3</h3>
+  <div class="container">
+    <h1>voting rate with unemployment patterns</h1>
+    <div id="toolbar">
+      <a href="#" id="all" class="button active">All states</a>
+      <a href="#" id="year" class="button">By unemployment Rate</a>
+	  <a href="#" id="turn" class="button">Literacy rate</a>
+	  <a href="#" id="voter" class="button">voter turn</a>
+	  <select style="height: 35px" id="choice" onchange="yearly(this.value)" >
+  <option value="2012">2012</option>
+  <option value="2016">2016</option>
+  </select>
+<h3><b>Select states</b></h3>
+<input type="checkbox" id="AL" onclick="showal(this)" checked>Alabama&nbsp;
+<input type="checkbox" id="AZ" onclick="showal2(this)" checked>Arizona&nbsp;
+<input type="checkbox" id="Ak" onclick="showal4(this)" checked>Alaska&nbsp;
+<input type="checkbox" id="AR" onclick="showal5(this)" checked>Arkansas&nbsp;
+<input type="checkbox" id="CA" onclick="showal6(this)" checked>California&nbsp;
+<input type="checkbox" id="CT" onclick="showal7(this)" checked>Connecticut&nbsp;
+<input type="checkbox" id="DE" onclick="showal8(this)" checked>Delaware&nbsp;
+<input type="checkbox" id="FL" onclick="showal9(this)" checked>Florida&nbsp;
+<input type="checkbox" id="CO" onclick="showal3(this)" checked>Colorado&nbsp;
+<input type="checkbox" id="ID" onclick="showal17(this)" checked>Idaho&nbsp;<br/>
+<input type="checkbox" id="IL" onclick="showal13(this)" checked>Illinois&nbsp;
+<input type="checkbox" id="LA" onclick="showal14(this)" checked>Louisiana&nbsp;
+<input type="checkbox" id="MI" onclick="showal16(this)" checked>Michigan&nbsp;
+<input type="checkbox" id="NY" onclick="showal15(this)" checked>New York&nbsp;
+<input type="checkbox" id="NV" onclick="showal10(this)" checked>Nevada&nbsp;
+<input type="checkbox" id="NH" onclick="showal11(this)" checked>NewHampshire&nbsp;
+<input type="checkbox" id="NJ" onclick="showal12(this)" checked>NewJersey&nbsp;
+<input type="checkbox" id="OK" onclick="showal18(this)" checked>Oklahoma&nbsp;
+<input type="checkbox" id="TX" onclick="showal1(this)" checked>Texas&nbsp;
+
+
+
+    </div>
+    <div id="vis"></div>
+
+    </div>
+
+
+   <script>
+
+/* bubbleChart creation function. Returns a function that will
+ * instantiate a new bubble chart given a DOM element to display
+ * it in and a dataset to visualize.
+ *
+ * counties and style inspired by:
+ * https://bost.ocks.org/mike/chart/
+ *
+ */
+function bubbleChart() {
+  // Constants for sizing
+  var width = 1000;
+  var height = 650;
+ var issvg= 'NO';
+  // tooltip for mouseover functionality
+  var tooltip = floatingTooltip('gates_tooltip', 240);
+
+  // Locations to move bubbles towards, depending
+  // on which view mode is selected.
+  var center = { x: width / 2, y: height / 2 };
+
+  var yearCenters = {
+    1: { x:160, y: height / 3 },
+    2: { x:270,y: height / 3},
+    3: { x:400, y: height / 3 },
+	4: { x:566, y: height / 3 },
+	5: { x:722, y: height / 3 },
+	6: { x:900 , y: height / 3 }
+  };
+   var yearCenters1 = {
+    1: { x:100, y: height / 3 },
+    2: { x:270,y: height / 3},
+    3: { x:430, y: height / 3 },
+	4: { x:570, y: height / 3 },
+	5: { x:710, y: height / 3 },
+	6: { x:810 , y: height / 3 }
+  };
+   var yearCenters2 = {
+    1: { x:100, y: height / 3 },
+    2: { x:270,y: height / 3},
+    3: { x:430, y: height / 3 },
+	4: { x:570, y: height / 3 },
+	5: { x:710, y: height / 3 },
+	6: { x:810 , y: height / 3 }
+  };
+
+  // X locations of the year titles.
+  var yearsTitleX = {
+    "less than 5":70,
+	">5 & <=10":270,
+    ">10&<=15":470 ,
+	">15&<=20":650,
+	">20&<=25":810,
+	">25":920
+  };
+  var yearsTitleX1 = {
+    "less than 60":70,
+	">60 & <=65":230,
+    ">65&<=70":390 ,
+	">70&<=75":525,
+	">75&<=80":670,
+	">80":850
+  };
+  var yearsTitleX2 = {
+    "less than 20":130,
+	">20 & <=40":300,
+    ">40&<=60":425 ,
+	">60&<=80":570,
+	">80&<=100":710,
+	">100":850
+  };
+
+  // Used when setting up force and
+  // moving around nodes
+  var damper = 0.102;
+
+  // These will be set in create_nodes and create_vis
+  var svg = null;
+  var bubbles = null;
+  var nodes = [];
+
+  // Charge function that is called for each node.
+  // Charge is proportional to the diameter of the
+  // circle (which is stored in the radius attribute
+  // of the circle's associated data.
+  // This is done to allow for accumargin collision
+  // detection with nodes of different sizes.
+  // Charge is negative because we want nodes to repel.
+  // Dividing by 8 scales down the charge to be
+  // appropriate for the visualization dimensions.
+  function charge(d) {
+    return -Math.pow(d.radius, 2.0) / 8;
+  }
+
+  // Here we create a force layout and
+  // configure it to use the charge function
+  // from above. This also sets some contants
+  // to specify how the force layout should behave.
+  // More configuration is done below.
+  var force = d3.layout.force()
+    .size([width, height])
+    .charge(charge)
+    .gravity(-0.01)
+    .friction(0.9);
+
+
+  // Nice looking colors - no reason to buck the trend
+  var fillColor = d3.scale.ordinal()
+    .domain(['low', 'medium', 'high'])
+    .range(['#d84b2a', '#beccae', '#7aa25c']);
+
+  // Sizes bubbles based on their area instead of raw radius
+  var radiusScale = d3.scale.pow()
+    .exponent(0.8)
+    .range([2, 9]);
+
+  /*
+   * This data manipulation function takes the raw data from
+   * the CSV file and converts it into an array of node objects.
+   * Each node will store data and visualization values to visualize
+   * a bubble.
+   *
+   * rawData is expected to be an array of data objects, read in from
+   * one of d3's loading functions like d3.csv.
+   *
+   * This function returns the new node array, with a node in that
+   * array for each element in the rawData input.
+   */
+  function createNodes(rawData) {
+    // Use map() to convert raw data into node data.
+    // Checkout http://learnjsdata.com/ for more on
+    // working with data.
+    var myNodes = rawData.map(function (d) {
+	  var category;
+	   if(d.rate<=5)
+	   {
+	   category =1;
+	   }
+	   else if(d.rate>5&&d.rate<=10)
+{ category = 2;}
+else if(d.rate>10&&d.rate<=15){category=3;}
+else if(d.rate>15&&d.rate<=20){category=4;}
+else if(d.rate>20&&d.rate<=25){category=5;}
+else{ category = 6;}
+var category1;
+	   if(d.lit<=60)
+	   {
+	   category1 =1;
+	   }
+else if(d.lit>60&&d.lit<=65){category1=2;}
+else if(d.lit>65&&d.lit<=70){category1=3;}
+else if(d.lit>70&&d.lit<=75){category1=4;}
+else if(d.lit>75&&d.lit<=80){category1=5;}
+else{ category1 = 6;}
+var category2;
+	   if(d.voter<=20)
+	   {
+	   category2 =1;
+	   }
+else if(d.voter>20&&d.voter<=40){category2=2;}
+else if(d.voter>40&&d.voter<=60){category2=3;}
+else if(d.voter>60&&d.voter<=80){category2=4;}
+else if(d.voter>80&&d.voter<=100){category2=5;}
+else{ category2 = 6;}
+	   return {
+        id: d.id,
+        radius: radiusScale(+d.margin),
+        value: d.margin,
+        name: d.state,
+        org: d.county,
+        group: d.group,
+        year:category,
+		year1:category1,
+		year2:category2,
+        x: Math.random() * 900,
+		obama:d.obama,
+		romney:d.romney,
+		rate:d.rate,
+		lit:d.lit
+      };
+    });
+
+    // sort them to prevent occlusion of smaller nodes.
+    myNodes.sort(function (a, b) { return b.value - a.value; });
+
+    return myNodes;
+  }
+
+  /*
+   * Main entry point to the bubble chart. This function is returned
+   * by the parent closure. It prepares the rawData for visualization
+   * and adds an svg element to the provided selector and starts the
+   * visualization creation process.
+   *
+   * selector is expected to be a DOM element or CSS selector that
+   * points to the parent element of the bubble chart. Inside this
+   * element, the code will add the SVG continer for the visualization.
+   *
+   * rawData is expected to be an array of data objects as provided by
+   * a d3 loading function like d3.csv.
+   */
+  var chart = function chart(selector, rawData) {
+    // Use the max margin in the data as the max in the scale's domain
+    // note we have to ensure the margin is a number by converting it
+    // with `+`.
+    var maxAmount = d3.max(rawData, function (d) { return +d.margin; });
+	//console.log(maxAmount);
+    radiusScale.domain([0, maxAmount]);
+
+    nodes = createNodes(rawData);
+    // Set the force's nodes to our newly created nodes array.
+    force.nodes(nodes);
+
+    // Create a SVG element inside the provided selector
+    // with desired size.
+	
+	if(issvg==='NO'){
+    svg = d3.select(selector)
+      .append('svg')
+      .attr('width', width)
+      .attr('height', height);
+	  issvg='YES';
+	}
+    // Bind nodes data to what will become DOM elements to represent them.
+    bubbles = svg.selectAll('.bubble')
+      .data(nodes, function (d) { return d.id; });
+
+    // Create new circle elements each with class `bubble`.
+    // There will be one circle.bubble for each object in the nodes array.
+    // Initially, their radius (r attribute) will be 0.
+    bubbles.enter().append('circle')
+      .classed('bubble', true)
+      .attr('r', 0)
+	  .attr('id',function (d) {
+		  var value = d.name;
+		  return value;})
+      .attr('fill', function (d) {
+		  var value = d.obama;
+	//console.log(value)
+	var value1 = d.romney;
+
+	if (d.romney>d.obama) {
+	//If value exists…
+	return "red";
+	} else if(d.obama>d.romney) {
+	
+	return "blue";
+	}
+	else{
+	return "brown"
+	}
+} ) 
+      .attr('stroke', function (d) {
+		  var value = d.obama;
+	//console.log(value)
+	var value1 = d.romney;
+
+	if (d.romney>d.obama) {
+	//If value exists…
+	return "black";
+	} else if(d.obama>d.romney) {
+	return "black";
+	
+	}
+	else{
+	return "brown"
+	}
+})
+      .attr('stroke-width', 2)
+      .on('mouseover', showDetail)
+      .on('mouseout', hideDetail);
+
+    // Fancy transition to make bubbles appear, ending with the
+    // correct radius
+    bubbles.transition()
+      .duration(500)
+      .attr('r', function (d) { return d.radius; });
+
+    // Set initial layout to single group.
+    groupBubbles();
+  };
+
+  /*
+   * Sets visualization in "single group mode".
+   * The year labels are hidden and the force layout
+   * tick function is set to move all nodes to the
+   * center of the visualization.
+   */
+  function groupBubbles() {
+      d3.selectAll(".year").remove();
+
+    force.on('tick', function (e) {
+      bubbles.each(moveToCenter(e.alpha))
+        .attr('cx', function (d) { return d.x; })
+        .attr('cy', function (d) { return d.y; });
+    });
+
+    force.start();
+  }
+
+  /*
+   * Helper function for "single group mode".
+   * Returns a function that takes the data for a
+   * single node and adjusts the position values
+   * of that node to move it toward the center of
+   * the visualization.
+   *
+   * Positioning is adjusted by the force layout's
+   * alpha parameter which gets smaller and smaller as
+   * the force layout runs. This makes the impact of
+   * this moving get reduced as each node gets closer to
+   * its destination, and so allows other forces like the
+   * node's charge force to also impact final location.
+   */
+  function moveToCenter(alpha) {
+    return function (d) {
+      d.x = d.x + (center.x - d.x) * damper * alpha;
+      d.y = d.y + (center.y - d.y) * damper * alpha;
+    };
+  }
+
+  /*
+   * Sets visualization in "split by year mode".
+   * The year labels are shown and the force layout
+   * tick function is set to move nodes to the
+   * yearCenter of their data's year.
+   */
+  function splitBubbles() {
+    showYears();
+  //conole.log(showYears())
+    force.on('tick', function (e) {
+      bubbles.each(moveToYears(e.alpha))
+        .attr('cx', function (d) { return d.x+25; })
+        .attr('cy', function (d) { return d.y+100; });
+    });
+
+    force.start();
+  }
+
+  /*
+   * Helper function for "split by year mode".
+   * Returns a function that takes the data for a
+   * single node and adjusts the position values
+   * of that node to move it the year center for that
+   * node.
+   *
+   * Positioning is adjusted by the force layout's
+   * alpha parameter which gets smaller and smaller as
+   * the force layout runs. This makes the impact of
+   * this moving get reduced as each node gets closer to
+   * its destination, and so allows other forces like the
+   * node's charge force to also impact final location.
+   */
+  function moveToYears(alpha) {
+    return function (d) {
+      var target = yearCenters[d.year];
+	  //console.log(target.x)
+	 // console.log(d.x)
+      d.x = d.x + (target.x - d.x) * damper * alpha * 3;
+	  //console.log(d.x)
+      d.y = d.y + (target.y - d.y) * damper * alpha * 2.3;
+    };
+  }//////////////
+  
+  /*
+   * Hides Year title displays.
+   */
+  /*function hideYears() {
+    svg.selectAll('.year').remove();
+  }
+*/
+  /*
+   * Shows Year title displays.
+   */
+  function showYears() {
+  
+	d3.selectAll(".year").remove();
+    // Another way to do this would be to create
+    // the year texts once and then just hide them.
+    var yearsData = d3.keys(yearsTitleX);
+    var years = svg.selectAll('.year')
+      .data(yearsData);
+
+    years.enter().append('text')
+      .attr('class', 'year')
+      .attr('x', function (d) { return yearsTitleX[d]; })
+      .attr('y', 40)
+      .attr('text-anchor', 'middle')
+      .text(function (d) { return d; });
+  }
+
+
+  /*
+   * Function called on mouseover to display the
+   * details of a bubble in the tooltip.
+   */
+  function showDetail(d) {
+    // change outline to indicate hover state.
+    d3.select(this).attr('stroke', 'black');
+/*name: d.state,
+        org: d.County,*/
+    var content ='<span class="name">Title: </span><span class="value">' +
+                  d.org +'</span><br/>' +
+                   '<span class="name">state: </span><span class="value">' +
+                  d.name +
+                  '</span><br/>' +
+				  '<span class="name">literacy&nbsprate;: </span><span class="value">' +
+                  d.year1 +
+                  '</span><br/>' +
+                  '<span class="name"> unemployment percent: </span><span class="value">' +
+                  addCommas(d.rate) +
+                  '%</span><br/>';
+    tooltip.showTooltip(content, d3.event);
+  }
+
+  /*
+   * Hides tooltip
+   */
+  function hideDetail(d) {
+    // reset outline
+    d3.select(this)
+      .attr('stroke', d3.rgb(fillColor(d.group)).darker());
+
+    tooltip.hideTooltip();
+  }
+  /////////////////////////////////////////////
+function splitBubbles2() {
+console.log("split2")
+    showYears2();
+  //conole.log(showYears())
+    force.on('tick', function (e) {
+      bubbles.each(moveToYears2(e.alpha))
+        .attr('cx', function (d) { return d.x+25; })
+        .attr('cy', function (d) { return d.y+100; });
+    });
+
+    force.start();
+  }
+  function moveToYears2(alpha) {
+  
+    return function (d) {
+      var target = yearCenters1[d.year1];
+	 // console.log(target.x)
+	  //console.log(d.x)
+      d.x = d.x + (target.x - d.x) * damper * alpha * 3;
+	 // console.log(d.x)
+      d.y = d.y + (target.y - d.y) * damper * alpha * 2.3;
+    };
+  }
+  function showYears2() {
+  console.log("years");
+  d3.selectAll(".year").remove();
+    // Another way to do this would be to create
+    // the year texts once and then just hide them.
+    var yearsData = d3.keys(yearsTitleX1);
+    var years= svg.selectAll('.year1')
+      .data(yearsData);
+//console.log("hello"+years)
+    years.enter().append('text')
+      .attr('class', 'year')
+      .attr('x', function (d) { return yearsTitleX1[d]; })
+      .attr('y', 40)
+      .attr('text-anchor', 'middle')
+      .text(function (d) { return d; });
+  }
+  function hideYears2() {
+    svg.selectAll('.year1').remove();
+  }
+  function splitBubbles3() {
+console.log("split2")
+    showYears3();
+  //conole.log(showYears())
+    force.on('tick', function (e) {
+      bubbles.each(moveToYears3(e.alpha))
+        .attr('cx', function (d) { return d.x+25; })
+        .attr('cy', function (d) { return d.y+100; });
+    });
+
+    force.start();
+  }
+  function moveToYears3(alpha) {
+  
+    return function (d) {
+      var target = yearCenters1[d.year2];
+	 // console.log(target.x)
+	  //console.log(d.x)
+      d.x = d.x + (target.x - d.x) * damper * alpha * 3;
+	 // console.log(d.x)
+      d.y = d.y + (target.y - d.y) * damper * alpha * 2.3;
+    };
+  }
+  function showYears3() {
+ // console.log("years");
+  d3.selectAll(".year").remove();
+    // Another way to do this would be to create
+    // the year texts once and then just hide them.
+    var yearsData = d3.keys(yearsTitleX2);
+    var years= svg.selectAll('.year2')
+      .data(yearsData);
+//console.log("hello"+years)
+    years.enter().append('text')
+      .attr('class', 'year')
+      .attr('x', function (d) { return yearsTitleX2[d]; })
+      .attr('y', 40)
+      .attr('text-anchor', 'middle')
+      .text(function (d) { return d; });
+  }
+  function hideYears3() {
+    svg.selectAll('.year1').remove();
+  }
+  /*
+   * Externally accessible function (this is attached to the
+   * returned chart function). Allows the visualization to toggle
+   * between "single group" and "split by year" modes.
+   *
+   * displayName is expected to be a string and either 'year' or 'all'.
+   */
+  chart.toggleDisplay = function (displayName) {
+    if (displayName === 'year') {
+      splitBubbles();
+    } 
+	 else if (displayName === 'turn') {
+      splitBubbles2();
+    } 
+	else if(displayName==='voter')
+	{
+	splitBubbles3();
+	}
+	else {
+      groupBubbles();
+    }
+  };
+
+
+  // return the chart function from closure.
+  return chart;
+}
+
+/*
+ * Below is the initialization code as well as some helper functions
+ * to create a new bubble chart instance, load the data, and display it.
+ */
+
+var myBubbleChart = bubbleChart();
+
+/*
+ * Function called once data is loaded from CSV.
+ * Calls bubble chart function to display inside #vis div.
+ */
+function display(error, data) {
+  if (error) {
+    console.log(error);
+  }
+
+  myBubbleChart('#vis', data);
+}
+
+/*
+ * Sets up the layout buttons to allow for toggling between view modes.
+ */
+function setupButtons() {
+  d3.select('#toolbar')
+    .selectAll('.button')
+    .on('click', function () {
+      // Remove active class from all buttons
+      d3.selectAll('.button').classed('active', false);
+      // Find the button just clicked
+      var button = d3.select(this);
+
+      // Set it as the active button
+      button.classed('active', true);
+
+      // Get the id of the button
+      var buttonId = button.attr('id');
+
+      // Toggle the bubble chart based on
+      // the currently clicked button.
+      myBubbleChart.toggleDisplay(buttonId);
+    });
+}
+
+/*
+ * Helper function to convert a number into a string
+ * and add commas to it to improve presentation.
+ */
+function addCommas(nStr) {
+  nStr += '';
+  var x = nStr.split('.');
+  var x1 = x[0];
+  var x2 = x.length > 1 ? '.' + x[1] : '';
+  var rgx = /(\d+)(\d{3})/;
+  while (rgx.test(x1)) {
+    x1 = x1.replace(rgx, '$1' + ',' + '$2');
+  }
+
+  return x1 + x2;
+}
+function showal(e){
+ console.log("call")
+		if(e.checked){
+		d3.selectAll("#AL").attr("display","block");
+		
+		}
+       else
+			{
+			d3.selectAll("#AL").attr("display","none");
+			}
+			try {
+  null.f();
+} catch (e) {
+  console.log(e instanceof TypeError); // true
+  console.log(e.message);              // "null has no properties"
+  console.log(e.name);                 // "TypeError"
+  console.log(e.fileName);             // "Scratchpad/1"
+  console.log(e.lineNumber);           // 2
+  console.log(e.columnNumber);         // 2
+  console.log(e.stack);                // "@Scratchpad/2:2:3\n"
+}
+
+	}
+
+function showal1(e){
+ if(e.checked){
+		d3.selectAll("#TX").attr("display","block");
+		}
+       else
+			{
+			d3.selectAll("#TX").attr("display","none");
+			}
+   
+			
+
+	}
+	function showal2(e){
+ if(e.checked){
+		d3.selectAll("#AR").attr("display","none")
+		}
+       else
+			{
+			d3.selectAll("#AR").attr("display","none");
+			}
+   
+   
+			
+
+	}
+	function showal3(e){
+ if(e.checked){
+			d3.selectAll("#CO").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#CO").attr("display","none");
+			}
+  }
+  function showal4(e){
+ if(e.checked){
+			d3.selectAll("#AK").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#AK").attr("display","none");
+			}
+  }
+ function showal5(e){
+ if(e.checked){
+			d3.selectAll("#AR").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#AR").attr("display","none");
+			}
+  } 
+ function showal6(e){
+ if(e.checked){
+			d3.selectAll("#CA").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#CA").attr("display","none");
+			}
+  } 
+  function showal7(e){
+ if(e.checked){
+			d3.selectAll("#CT").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#CT").attr("display","none");
+			}
+  }
+  function showal8(e){
+ if(e.checked){
+			d3.selectAll("#DE").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#DE").attr("display","none");
+			}
+  }
+  function showal9(e){
+ if(e.checked){
+			d3.selectAll("#FL").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#FL").attr("display","none");
+			}
+  }
+  function showal10(e){
+ if(e.checked){
+			d3.selectAll("#NV").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#NV").attr("display","none");
+			}
+  }
+   function showal11(e){
+ if(e.checked){
+			d3.selectAll("#NH").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#NH").attr("display","none");
+			}
+  }
+  function showal12(e){
+ if(e.checked){
+			d3.selectAll("#NJ").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#NJ").attr("display","none");
+			}
+  }
+    function showal13(e){
+ if(e.checked){
+			d3.selectAll("#IL").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#IL").attr("display","none");
+			}
+  }
+  function showal14(e){
+ if(e.checked){
+			d3.selectAll("#LA").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#LA").attr("display","none");
+			}
+  }
+  function showal15(e){
+ if(e.checked){
+			d3.selectAll("#IL").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#IL").attr("display","none");
+			}
+  }
+   function showal16(e){
+ if(e.checked){
+			d3.selectAll("#MI").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#MI").attr("display","none");
+			}
+  }
+  function showal17(e){
+ if(e.checked){
+			d3.selectAll("#ID").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#ID").attr("display","none");
+			}
+  }
+  function showal18(e){
+ if(e.checked){
+			d3.selectAll("#OK").attr("display","block");
+		}
+       else
+			{
+		d3.selectAll("#OK").attr("display","none");
+			}
+  }
+function yearly(yr){
+d3.selectAll('circle').remove()
+if (yr==2012)
+{
+// Load the data.
+d3.csv('../Data/gates_money3.csv', display);
+
+// setup the buttons.
+setupButtons();
+
+}
+else (yr==2016)
+{
+// Load the data.
+d3.csv('../Data/gates_money1.csv', display);
+
+// setup the buttons.
+setupButtons();
+}
+/*else{
+// Load the data.
+//d3.csv('gates_money3.csv', display);
+
+ setup the buttons.
+setupButtons();
+}*/
+
+}
+//data.
+d3.csv('../Data/gates_money3.csv', display);
+
+// setup the buttons.
+setupButtons();
+	</script>	   
+</div>
+	   
+<script>
+function openCity(evt, cityName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(cityName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>
+     
+</body>
+</html>

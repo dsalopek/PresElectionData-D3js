@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html>
+<style>
+
+
+html, body { height: 100%; width: 100%; margin: 0; }
+
+body {font-family: "Lato", sans-serif;}
+
+#Poll{
+
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
+ul.tab {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+
+/* Float the list items side by side */
+ul.tab li {float: left;}
+
+/* Style the links inside the list items */
+ul.tab li a {
+    display: inline-block;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of links on hover */
+ul.tab li a:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+ul.tab li a:focus, .active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+
+/********************************* Roshan **************************/
+
+#bodyContainer{
+          width: 100%;
+          height: 80%;
+          float: left;
+          border: 1px solid #555555;
+        }
+
+        #leftMenu{
+          width: 20%;
+          height: 100%;         
+          float: left;
+          border: 1px solid #555555;
+        }
+
+        #svgContainer{
+          width: 79%;
+          height: 100%;         
+          float: right;
+          border: 1px solid #555555;
+        }
+
+        #mapContainer{
+          width: 65%;
+          height: 100%;         
+          float: left;
+          border: 1px solid #555555;
+        }
+
+        #forMap{
+          width: 100%;
+          height: 80%;          
+          float: left;
+          border: 1px solid #555555;
+        }
+
+        #forGraph{
+          width: 100%;
+          height: 20%;          
+          float: left;
+          border: 1px solid #555555;
+        }
+
+        #graphContainer{
+          width: 34%;
+          height: 100%;         
+          float: right;
+          border: 1px solid #555555;
+        }
+
+
+
+/*************************************/
+
+
+
+
+</style>
+<head>
+<script type="text/javascript" src="../d3/d3.v3.min.js"> </script>
+    <script type="text/javascript" src="../d3/async.js"> </script>
+</head>
+<body>
+
+
+
+<ul class="tab" >
+  <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'HomePage')" id="defaultOpen">Home Page</a></li>
+  <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'Poll')">Poll</a></li>
+  <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'Tab3')">Tab3</a></li>
+</ul>
+
+<div id="HomePage" class="tabcontent">
+  <h3>Home Page</h3>
+
+</div>
+
+<div id="Poll" class="tabcontent">
+  <h3>Poll</h3>
+
+
+    <div id="bodyContainer">
+      <div id = "leftMenu"> OPTIONS
+
+        <br>
+        <input type="button" value="START" onclick = "start()" > </input>
+        <br>
+        <input type="button" value="STOP" onclick = "stop()"> </input>
+        <br>
+        <input type="button" value="RESET" onclick = "reset()"> </input>
+
+      </div>
+      <div id = "svgContainer">
+
+        <div id ="mapContainer"> 
+
+          <div id = "forMap"> </div>
+          <div id = "forGraph"> </div>
+
+        </div>
+        <div id = "graphContainer"> </div>
+
+       </div>
+    </div>
+   
+  <script type="text/javascript">
+
+    //Global Variables
+
+    var allData;
+    var onlyUSPolls = [];
+    var endDateIsPresent = [];
+    var allDates = new Map();
+    var allStates = new Map();
+    var path;
+    var isChartAlreadyDrawn = "NO";
+    var isBarAlreadyDrawn = "NO";
+    var g1;
+    var arc;
+    var pie;
+    var statesUsed = [];
+    var statesUnused = [];
+    var counter = 0;
+    var isdblClicked = "NO";
+
+
+    //Setting properties for the svgContainer
+
+    
+    var mapSVG = d3.select("#forMap")
+              .append("svg")
+                .attr("class","mapSVG")
+                .attr("width", "100%")
+                .attr("height", "100%");
+
+
+    mapSVG.append("text").attr("id","datetext").attr("x",250).attr("y",20).text("").style("font-size",20)
+
+
+
+
+
+    
+
+    // var chartSVG = d3.select("#graphContainer")
+    //          .append("svg")
+    //            .attr("class","chartSVG")
+    //            .attr("width", "100%")
+    //            .attr("height", "100%");  
+
+
+    var barChartSVG = d3.select("#forGraph")
+              .append("svg")
+                .attr("class","barChartSVG")
+                .attr("width", "100%")
+                .attr("height", "100%");      
+
+                  
+
+
+      
+    // Code for SVG..........................................................
+    
+      //Width and height of map
+      var width = 428;
+      var height = 469;
+      var allStatesJsonData;
+      var map;
+      var stateColor;
+
+      
+      
+      // D3 Projection
+      var projection = d3.geo.albersUsa()
+                 .translate([330, 190])    // translate to center of screen
+                 .scale([750]);          // scale things down so see entire US
+              
+      // Define path generator
+      var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
+               .projection(projection);  // tell path generator to use albersUsa projection
+
+          
+      // Define linear scale for output
+      var color = d3.scale.linear()
+              .range(["rgb(213,222,217)","rgb(69,173,168)","rgb(84,36,55)","rgb(217,91,67)"]);
+
+
+      // Load GeoJSON data and merge with states data
+      d3.json("us-states.json", function(error, json) { 
+        allStatesJsonData = json;
+        // Bind the data to the SVG and create one path per GeoJSON feature
+         map = mapSVG.selectAll("path")
+              .data(allStatesJsonData.features)
+              .enter()
+              .append("path")
+                .attr("class","map")
+                .attr("id", function(d){ 
+                  statesUsed.push(d.properties.name.split(' ').join('_'))
+                  return d.properties.name.split(' ').join('_');})  
+                .attr("d", path)
+                .style("stroke", "#fff")
+                .style("stroke-width", "1")
+                .style("fill", function(d) {    
+                  return "rgb(213,222,217)";
+                })
+      })
+
+      //Loading the poll data
+
+      d3.csv("../Data/presidential_polls.csv", function(error,_data){
+
+        allData = _data;
+
+        allData.forEach(function(d){
+
+          if(allStates[d.state.split(" ").join("_")] === undefined)
+          {
+            allStates[d.state.split(" ").join("_")] = new Map()
+
+
+            if (allStates[d.state.split(" ").join("_")][d.enddate] === undefined )
+            {
+              allStates[d.state.split(" ").join("_")][d.enddate] = [d]
+            }
+            else
+            {
+              allStates[d.state.split(" ").join("_")][d.enddate].push(d)
+            }
+            
+
+          }
+          else
+          {
+            //allStates[d.state.split(" ").join("_")].push(d)
+            if (allStates[d.state.split(" ").join("_")][d.enddate] === undefined )
+            {
+              allStates[d.state.split(" ").join("_")][d.enddate] = [d]
+            }
+            else
+            {
+              allStates[d.state.split(" ").join("_")][d.enddate].push(d)
+            }
+
+          }
+
+        })// end of allData.forEach()
+
+        colorByDate(allStates)
+
+      }) //end of d3.csv
+
+
+      function colorByDate(theStates)
+      {
+        var dates = ["10/1/2016","10/2/2016","10/3/2016","10/4/2016","10/5/2016","10/6/2016","10/7/2016","10/9/2016","10/10/2016","10/11/2016"
+              , "10/12/2016","10/13/2016","10/14/2016","10/15/2016","10/16/2016","10/17/2016","10/18/2016","10/19/2016","10/20/2016","10/21/2016"
+              ,"10/22/2016","10/23/2016","10/24/2016","10/25/2016","10/26/2016","10/27/2016","10/28/2016","10/29/2016","10/30/2016","10/31/2016"
+        ]
+
+        async.eachSeries(dates, function(date,callback){
+
+          d3.selectAll("#datetext").transition().text(date).duration(1000)
+          drawSmallMap(date)
+
+          setTimeout(function()
+          {
+            console.log(date)
+
+            Object.keys(allStates).forEach(function(key){
+
+              d3.selectAll(".map").style("fill","rgb(213,222,217)");
+              
+              colorStates(date,key)
+            })
+
+            if(isdblClicked === "NO")           
+              callback();
+            else
+              callback("stop")
+          
+          },1500)
+          
+        }) // end of aynch
+
+      }
+
+
+      function drawSmallMap(date)
+      {
+        counter = counter + 1;
+        var sMap =d3.select("#graphContainer").append("svg").attr("class","smallSVG").attr("id",date).attr("width",70).attr("height",70)//.append("title").text(date)//.append("text").attr("x",10)
+              .attr("y",20).text(date).style("font-size","5px");
+
+        // D3 Projection
+        var projection = d3.geo.albersUsa()
+                   .translate([35, 35])    // translate to center of screen
+                   .scale([100]);          // scale things down so see entire US
+                
+        // Define path generator
+        var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
+                 .projection(projection);  // tell path generator to use albersUsa projection
+
+            
+        // Define linear scale for output
+        var color = d3.scale.linear()
+                .range(["rgb(213,222,217)","rgb(69,173,168)","rgb(84,36,55)","rgb(217,91,67)"]);
+
+
+        // Load GeoJSON data and merge with states data
+        d3.json("us-states.json", function(error, json) { 
+          allStatesJsonData = json;
+          // Bind the data to the SVG and create one path per GeoJSON feature
+            sMap.selectAll("path")
+                .data(allStatesJsonData.features)
+                .enter()
+                .append("path")
+                  .attr("class","map1")
+                  .attr("id", function(d){ 
+                    statesUsed.push(d.properties.name.split(' ').join('_'))
+                    return d.properties.name.split(' ').join('_') + counter;})  
+                  .attr("d", path)
+                  .style("stroke", "#fff")
+                  .style("stroke-width", "1")
+                  .style("fill", function(d) {    
+                    return "rgb(213,222,217)";
+                  })
+                  .on("dblclick", function()
+                    {
+                      isdblClicked = "YES"
+                      Object.keys(allStates).forEach(function(key){
+
+                        d3.selectAll(".map").style("fill","rgb(213,222,217)");
+                        d3.select("#datetext").text(date);  
+
+                        colorStates(date,key)
+
+                      })
+                    });
+        })
+      }
+
+      function colorStates(date,key)
+      {
+                var trumpAvg = 0
+                var clintonAvg = 0
+
+
+              try{
+
+                allStates[key][date].forEach(function (d){
+
+                  trumpAvg = trumpAvg + parseInt(d.rawpoll_trump)
+                  clintonAvg = clintonAvg + parseInt(d.rawpoll_clinton)
+                })
+
+                // d3.selectAll(".map").style("fill","rgb(213,222,217)");
+
+                drawBarChart(trumpAvg/allStates[key][date].length, clintonAvg/allStates[key][date].length )
+
+                if (trumpAvg/allStates[key][date].length > clintonAvg/allStates[key][date].length )
+                {
+                  try
+                  {
+                    d3.selectAll("#" + key.split(" ").join("_")).transition().style("fill","red").duration(1000);
+                    console.log("#" + key.split(" ").join("_") + "_small" + counter)
+                    d3.selectAll("#" + key.split(" ").join("_") + counter).transition().style("fill","red").duration(1000);
+
+                  }catch (error)
+                  {return;}
+                  
+                }
+                else
+                {
+
+                  try
+                  {
+                    d3.selectAll("#" + key.split(" ").join("_")).transition().style("fill","blue").duration(1000)
+                    d3.selectAll("#" + key.split(" ").join("_") + counter).transition().style("fill","blue").duration(1000);
+                    
+                  }catch (error)
+                  {
+                    return;
+
+                  }
+
+                }
+
+                
+
+              } catch (error)
+              { 
+
+                return;
+
+              }
+      }
+
+
+      
+
+
+      
+      function getColor(theValue)
+      {
+        if(theValue === "Trump")
+          return "red"
+        else
+          return "#3800ff"
+      }
+
+
+      function drawBarChart(trumpAvg,clintonAvg)
+      {
+        var totalRectangleWidth = 600;
+        var trumpRectWidth = ((trumpAvg / 100) * totalRectangleWidth )
+        var clintonRectWidth = ((clintonAvg / 100) * totalRectangleWidth )
+        var leftWidth = ((totalRectangleWidth - (trumpRectWidth + clintonRectWidth)) / 2 ) 
+        var rectTrump;
+        var rectClinton;
+        var mapcolor;
+
+        //totalRectangleWidth =  (trumpRectWidth + clintonRectWidth);
+        trumpRectWidth = trumpRectWidth + leftWidth;
+        clintonRectWidth = clintonRectWidth + leftWidth;
+
+        
+        if (trumpRectWidth > clintonRectWidth)
+          mapcolor = "red"
+        else if(trumpRectWidth < clintonRectWidth)
+          mapcolor = "blue"
+        else
+          mapcolor = "rgb(213,222,217)"
+        
+
+
+        if(isBarAlreadyDrawn === "NO")
+        {
+          rectTrump = barChartSVG.append("rect")
+                      .transition()
+                      .attr("class","rectTrump")
+                      .attr("x", 10)
+                      .attr("y", 40)
+                      .attr("height", 20)
+                      .attr("width",trumpRectWidth)
+                      .style("fill","red")
+                      .duration(750)
+
+          barChartSVG.append("text").attr("class","trumpText").attr("x",trumpRectWidth - 65).attr("y",55).style("fill","white")
+                      .text("Trump: " + trumpAvg + "%" )
+                      
+                      
+
+          rectClinton = barChartSVG.append("rect")
+                      .transition()
+                      .attr("class","rectClinton")
+                      .attr("x", (trumpRectWidth+12))
+                      .attr("y", 40)
+                      //.attr("transform","rotate(180)")
+                      .attr("height", 20)
+                      .attr("width",(totalRectangleWidth - trumpRectWidth))
+                      .style("fill","blue")
+                      .duration(750);
+
+          //d3.selectAll(".map").transition().style("fill",mapcolor).duration(1000)
+
+          barChartSVG.append("text").attr("class","clintonText").attr("x",trumpRectWidth+14).attr("y",55).style("fill","white")
+                      .text("Clinton: " + clintonAvg + "%" )
+
+          isBarAlreadyDrawn = "YES"
+        }
+        else
+        {
+          d3.selectAll(".rectTrump").transition().attr("width",trumpRectWidth).duration(1000);
+          d3.selectAll(".rectClinton").transition().attr("x", (trumpRectWidth + 12)).attr("width",(totalRectangleWidth- trumpRectWidth)).duration(1000);
+          //d3.selectAll(".map").transition().style("fill",mapcolor).duration(1000);
+          d3.selectAll(".trumpText").transition().attr("x", trumpRectWidth - 65).text("Trump: " + trumpAvg + "%" ).duration(1000);
+          d3.selectAll(".clintonText").transition().attr("x",trumpRectWidth+14).text("Clinton: " + clintonAvg + "%" ).duration(1000)
+
+        }
+
+        
+
+      } // end of fucntion drawBarChart(_data)
+
+
+
+      function drawPieChart(_data)
+      {
+
+        //d3.select(".piechart").remove();
+
+        var formattedData = [
+                    { legend: "Trump", count: _data.rawpoll_trump},
+                    { legend: "Clinton", count: _data.rawpoll_clinton}
+                  ];  
+      
+        var radius = 120;
+
+            arc = d3.svg.arc()
+              .innerRadius(100)
+              .outerRadius(radius);
+
+            pie = d3.layout.pie()
+              .value(function(d) { return d.count; })
+              .sort(null);
+
+
+            if (isChartAlreadyDrawn === "NO")
+            {
+              g1 = chartSVG.append('g')
+                .attr("class","piechart")
+                  .attr('transform', 'translate(' + 150 +
+                  ',' + 150+ ')');
+
+              path = g1.selectAll('path')
+                    .data(pie(formattedData))
+                  .enter()
+                    .append('path')
+                      .attr("class","piePath")
+                      .attr('d', arc)
+                      .style('fill', function(d) {
+                             return getColor(d.data.legend);
+                      })
+                      .each(function(d) { this._current = d; })
+                    .append("title")
+                      .text(function(d){ return (d.data.legend);})
+
+                 // remove data not being used
+                g1.datum(formattedData).selectAll("path")
+                 .data(pie).exit().remove();
+
+
+                isChartAlreadyDrawn = "YES"
+
+            }
+            else
+            {
+              
+              g1.selectAll(".piePath").data(pie(formattedData))
+                .transition()
+                .attr('d',arc)
+                .duration(1500)
+                .attrTween("d", arcTween);
+
+
+              // Store the displayed angles in _current.
+          // Then, interpolate from _current to the new angles.
+          // During the transition, _current is updated in-place by d3.interpolate.
+          function arcTween(a) {
+            var i = d3.interpolate(this._current, a);
+            this._current = i(0);
+            return function(t) {
+              return arc(i(t));
+            };
+          }
+
+
+
+
+
+
+            }
+
+            
+
+      }// end of fucntion drawPieChart(_data)
+
+
+      function stop()
+      {
+        isdblClicked = "YES";
+      }
+
+      function reset()
+      {
+        stop();
+
+        
+        setTimeout(function(d){
+          d3.selectAll(".smallSVG").remove();
+          isdblClicked = "NO";
+          colorByDate(allStates);
+          
+        },1000)
+
+        
+        
+      }
+
+
+      function start()
+      {
+        isdblClicked = "NO";
+      }
+
+
+
+
+    </script>
+
+
+ 
+</div>
+
+<div id="Tab3" class="tabcontent">
+  <h3>Tab3</h3>
+  
+</div>
+
+<script>
+function openCity(evt, cityName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(cityName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>
+     
+</body>
+</html>
