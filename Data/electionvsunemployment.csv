@@ -1,0 +1,52 @@
+state,id,organization,margin,group,year,obama,romney,rate,date,education
+Alabama,1,Alabama,12,high,2008,"813,479","1,266,546",8,2008,15
+Alaska,2,Alaska,22,medium,2009,"123,594","193,841",7.1,2008,11
+Arizona,3,Arizona,8,high,2008,"1,034,707","1,230,111",8.3,2008,14
+Arkansas,4,Arkansas,20,medium,2008,"422,310","638,017",7.6,2008,13
+California,5,California,25,high,2008,"8,274,473","5,011,781",10.4,2008,23
+Colorado,6,Colorado,9,high,2008,"1,288,576","1,073,589",7.9,2008,10
+Connecticut,7,Connecticut,22,high,2008,"997,772","629,428",8.3,2008,9
+Delaware,8,Delaware,15,high,2008,"255,459","152,374",7.2,2008,11
+DistrictofColumbia,9,DistrictofColumbia,85,high,2008,"245,800","17,367",9,2008,19
+Florida,10,Florida,3,high,2008,"4,282,074","4,045,624",8.5,2008,20
+Georgia,11,Georgia,6,high,2008,"1,844,137","2,048,744",9.2,2008,17
+Hawaii,12,Hawaii,45,medium,2008,"325,871","120,566",6,2008,16
+Idaho,13,Idaho,25,medium,2008,"236,440","403,012",7.2,2008,11
+Illinois,14,Illinois,25,high,2008,"3,419,673","2,031,527",9,2008,13
+Indiana,15,Indiana,1.3,high,2008,"1,374,039","1,345,648",8.3,2008,8
+Iowa,16,Iowa,9,low,2008,"828,940","682,379",5.1,2008,7
+Kansas,17,Kansas,15,low,2008,"514,765","699,655",5.7,2008,8
+Kentucky,18,Kentucky,16,high,2008,"751,985","1,048,462",8.2,2008,12
+Louisiana,19,Louisiana,19,medium,2008,"782,989","1,148,275",7.1,2008,16
+Maine,20,Maine,17,medium,2008,"421,923","295,273",7.5,2008,6
+Maryland,21,Maryland,15,medium,2008,"1,629,467","959,862",7,2008,10
+Massachusetts,22,Massachusetts,16,medium,2008,"1,904,097","1,108,854",6.7,2008,9
+Michigan,23,Michigan,26,high,2008,"2,872,579","2,048,639",8.1,2008,8
+Minnesota,24,Minnesota,17,low,2008,"1,573,354","1,275,409",5.6,2008,10
+Mississippi,25,Mississippi,11,high,2008,"554,662","724,597",9,2008,16
+Missouri,26,Missouri,2.5,medium,2008,"1,441,911","1,445,814",7,2008,6
+Montana,27,Montana,2,medium,2008,"231,667","242,763",6,2008,7
+Nebraska,28,Nebraska,15.5,low,2008,"333,319","452,979",4,2008,7
+Nevada,29,Nevada,13,high,2008,"533,736","412,827",11.2,2008,16
+New Hampshire,30,New Hampshire,10,low,2008,"384,826","316,534",5.5,2008,16
+New Jersey,31,New Jersey,16,high,2008,"2,215,422","1,613,207",9.3,2008,16
+New Mexico,32,New Mexico,15,medium,2008,"472,422","346,832",7.1,2008,16
+New York,33,New York,30,medium,2008,"4,769,700","2,742,298",8.5,2008,22
+North Carolina,34,North Carolina,0.4,medium,2008,"2,142,651","2,128,474",9.3,2008,14
+North Dakota,35,North Dakota,9,low,2008,"141,278","168,601",3.1,2008,9
+Ohio,36,Ohio,5,medium,2008,"2,933,388","2,674,491",7.4,2008,10
+Oklahoma,37,Oklahoma,31,low,2008,"502,496","960,165",5.3,2008,12
+Oregon,38,Oregon,16,high,2008,"1,037,291","738,475",8.8,2008,10
+Pennsylvania,39,Pennsylvania,10,medium,2008,"3,276,363","2,655,885",7.8,2008,13
+Rhode Island,40,Rhode Island,27,high,2008,"296,571","165,391",10.4,2008,8
+South Carolina,41,South Carolina,8.5,high,2008,"862,449","1,034,896",9.2,2008,15
+South Dakota,42,South Dakota,9,low,2008,"170,924","203,054",4.3,2008,7
+Tennessee,43,Tennessee,14,medium,2008,"1,087,437","1,479,178",7.8,2008,13
+Texas,44,Texas,12,medium,2008,"3,528,633","4,479,328",6.7,2008,19
+Utah,45,Utah,28,low,2008,"327,670","596,030",5.4,2008,9
+Vermont,46,Vermont,37,low,2008,"219,262","98,974",5,2008,7
+Virginia,47,Virginia,6,medium,2008,"1,959,532","1,725,005",6,2008,12
+Washington,48,Washington,17,high,2008,"1,750,848","1,229,216",8.1,2008,10
+West Virginia,49,West Virginia,13,medium,2008,"303,857","397,466",7.5,2008,13
+Wisconsin,50,Wisconsin,14,medium,2008,"1,677,211","1,262,393",7,2008,7
+Wyoming,51,Wyoming,32,low,2008+G28FF2:F52,"82,868","164,958",5.3,2008,9
